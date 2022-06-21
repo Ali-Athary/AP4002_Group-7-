@@ -1,8 +1,6 @@
 import tkinter 
-from modules import GUI_log_in_and_sign_up
-from modules  import GUI_user
-
-
+from modules import GUI_log_in_and_sign_up, GUI_user
+ 
 color_palette = ["#361d32", "#543c52", "#f55951", "#f1e8e6", "#edd2cb"]
 
 class App(tkinter.Tk):

@@ -82,7 +82,8 @@ class Log_in_page(Page):
         
         tkinter.Label(entry_frame, text="ایمیل", font=font_persian, bg=color_palette[3]).grid(row=0, column=1, padx=12, pady=4)
         self.email_var = tkinter.StringVar()
-        email_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.email_var)
+        email_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.email_var,
+         highlightthickness=0, bd=0)
         email_entry.grid(row=0, column=0, padx=12, pady=4)
         self.entries.append(email_entry)
 

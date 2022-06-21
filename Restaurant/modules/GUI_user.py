@@ -1,16 +1,33 @@
 import tkinter
-from tkinter import font
+from tkinter import font, ttk
 from PIL import ImageTk, Image  
 import os
 import sys
-import jdatetime
+from modules import GUI_user_Food_Menu_page, GUI_user_Cart
+
+pages = {}
+active_page_name = ""
 
 def set_profile_info(**kwargs):
     global profile_info
     profile_info = Profile_info(**kwargs)
 
+def change_page(name):
+    global active_page_name, pages
+
+    if(active_page_name == name):
+        return
+
+    pages[active_page_name].hide()
+    pages[name].show()
+    pages["right_menu"].hide()
+    pages["right_menu"].show()
+
+    active_page_name = name
+
 
 def main(root, color_palette):
+    global active_page_name, pages
     #main frame
     set_profile_info()
 
@@ -24,10 +41,21 @@ def main(root, color_palette):
     #right menu
 
     right_menu = Right_menu(main_frame, color_palette)
+    pages["right_menu"] = right_menu
     right_menu.show()
 
-    right_menu = Food_menu_panel(main_frame, color_palette)
-    right_menu.show()
+    #food menu panel
+
+    food_menu_page = GUI_user_Food_Menu_page.Food_menu_panel(main_frame, color_palette)
+    pages["food_menu"] = food_menu_page
+
+    active_page_name = "food_menu"
+    food_menu_page.show()
+
+    #cart panel
+
+    cart_page = GUI_user_Cart.Cart_panel(main_frame, color_palette)
+    pages["cart"] = cart_page
 
 class Profile_info():
     def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):
@@ -73,7 +101,7 @@ class Right_menu(tkinter.Frame):
         menu_image = ImageTk.PhotoImage(menu_img)
 
         menu_button = tkinter.Button(button_frame, image=menu_image, bg=color_palette[4],
-         activebackground=color_palette[4], highlightthickness=0, bd=0)
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("food_menu"))
         menu_button.image = menu_image
         menu_button.grid(row=0, column=1)   
 
@@ -85,7 +113,7 @@ class Right_menu(tkinter.Frame):
         cart_image = ImageTk.PhotoImage(cart_img)
 
         cart_button = tkinter.Button(button_frame, image=cart_image, bg=color_palette[4],
-         activebackground=color_palette[4], highlightthickness=0, bd=0)
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("cart"))
         cart_button.image = cart_image
         cart_button.grid(row=1, column=1)   
 
@@ -105,39 +133,6 @@ class Right_menu(tkinter.Frame):
 
     def show(self):
         self.place(x=1090, y=40)
-
-    def hide(self):
-        self.place_forget()
-
-class Food_menu_panel(tkinter.Label):
-    def __init__(self, root, color_palette):
-        img = Image.open(os.path.join(sys.path[0], "resources\panels\\user_food_menu_panel.png")).convert("RGBA")
-        image = ImageTk.PhotoImage(img)
-
-        super().__init__(root, image=image, bg=color_palette[4], bd=0)
-        self.image = image
-
-        font1 = font.Font(family="Mj_Flow", size=20)
-
-        #top bar
-
-        top_bar = Food_manu_top_bar(self, color_palette)
-        top_bar.show()
-
-    def show(self):
-        self.place(x=20, y=20)
-
-    def hide(self):
-        self.place_forget()
-    
-class Food_manu_top_bar(tkinter.Frame):
-    def __init__(self, root, color_palette):
-        super().__init__(root, width=1000, height=60, bg=color_palette[3])
-
-        font1 = font.Font(family="Mj_Flow", size=20)
-
-    def show(self):
-        self.place(x=30, y=2)
 
     def hide(self):
         self.place_forget()
