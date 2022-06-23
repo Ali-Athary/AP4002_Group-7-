@@ -49,13 +49,16 @@ def main(root, color_palette):
     food_menu_page = GUI_user_Food_Menu_page.Food_menu_panel(main_frame, color_palette)
     pages["food_menu"] = food_menu_page
 
-    active_page_name = "food_menu"
-    food_menu_page.show()
+    #active_page_name = "food_menu"
+    #food_menu_page.show()
 
     #cart panel
 
     cart_page = GUI_user_Cart.Cart_panel(main_frame, color_palette)
     pages["cart"] = cart_page
+
+    active_page_name = "cart"
+    cart_page.show()
 
 class Profile_info():
     def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):

@@ -19,7 +19,6 @@ class Food_item_UI_images():
         buy_img = Image.open(os.path.join(sys.path[0], "resources\icons\\buy_button.png")).convert("RGBA")
         self.buy = ImageTk.PhotoImage(buy_img)
 
-
 class Food_menu_panel(tkinter.Label):
     def __init__(self, root, color_palette):
         self.color_palette = color_palette
@@ -42,13 +41,13 @@ class Food_menu_panel(tkinter.Label):
         self.item_ui_image = Food_item_UI_images()
 
         for i in range(20):
-            pass
             self.add_food_to_list("پیتزا پپرونی", 140000)
 
     def add_food_to_list(self, name, price):
         #item frame
 
         frame = tkinter.Frame(self.food_frame.scrollable_frame, width=980, height=200, bg=self.color_palette[3])
+        frame.pack()
 
         #background
 
@@ -144,8 +143,6 @@ class Food_menu_panel(tkinter.Label):
         minus_button.image = self.item_ui_image.buy
         minus_button.place(x=330, y=145, anchor=tkinter.CENTER)
 
-        frame.pack()
-
         #image
 
         food_img = Image.open(os.path.join(sys.path[0], "resources\panels\\pitza.jpg")).convert("RGBA")
@@ -164,7 +161,6 @@ class Food_menu_panel(tkinter.Label):
     def hide(self):
         self.place_forget()
     
-
 class Food_manu_top_bar(tkinter.Frame):
     def __init__(self, root, color_palette):
         super().__init__(root, width=1000, height=60, bg=color_palette[3])
