@@ -91,7 +91,8 @@ class Log_in_page(Page):
         
         tkinter.Label(entry_frame, text="رمز عبور", font=font_persian, bg=color_palette[3]).grid(row=1, column=1, padx=12, pady=4)
         self.password_var = tkinter.StringVar()
-        password_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.password_var, show='●')
+        password_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.password_var, show='●',
+         highlightthickness=0, bd=0)
         password_entry.pack_propagate(0)
         password_entry.grid(row=1, column=0, padx=12, pady=4)
         self.entries.append(password_entry)
@@ -185,7 +186,8 @@ class Sign_in_page(Page):
         
         tkinter.Label(entry_frame, text="نام و نام خانوادگی", font=font_persian, bg=color_palette[3]).grid(row=0, column=1, padx=12, pady=pady)
         self.full_nam_var = tkinter.StringVar()
-        full_nam_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.full_nam_var)
+        full_nam_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.full_nam_var,
+         highlightthickness=0, bd=0)
         full_nam_entry.grid(row=0, column=0, padx=12, pady=pady)
         self.entries.append(full_nam_entry)
 
@@ -193,7 +195,8 @@ class Sign_in_page(Page):
         
         tkinter.Label(entry_frame, text="شماره تماس", font=font_persian, bg=color_palette[3]).grid(row=1, column=1, padx=12, pady=pady)
         self.phone_number_var = tkinter.StringVar()
-        phone_number_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.phone_number_var)
+        phone_number_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.phone_number_var,
+         highlightthickness=0, bd=0)
         phone_number_entry.grid(row=1, column=0, padx=12, pady=pady)
         self.entries.append(phone_number_entry)
 
@@ -201,7 +204,8 @@ class Sign_in_page(Page):
         
         tkinter.Label(entry_frame, text="ایمیل", font=font_persian, bg=color_palette[3]).grid(row=2, column=1, padx=12, pady=pady)
         self.email_var = tkinter.StringVar()
-        email_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.email_var)
+        email_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.email_var,
+         highlightthickness=0, bd=0)
         email_entry.grid(row=2, column=0, padx=12, pady=pady)
         self.entries.append(email_entry)
 
@@ -209,7 +213,8 @@ class Sign_in_page(Page):
         
         tkinter.Label(entry_frame, text="کد ملی", font=font_persian, bg=color_palette[3]).grid(row=3, column=1, padx=12, pady=pady)
         self.id_var = tkinter.StringVar()
-        id_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.id_var)
+        id_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.id_var,
+         highlightthickness=0, bd=0)
         id_entry.grid(row=3, column=0, padx=12, pady=pady)
         self.entries.append(id_entry)
 
@@ -217,7 +222,8 @@ class Sign_in_page(Page):
         
         tkinter.Label(entry_frame, text="رمز عبور", font=font_persian, bg=color_palette[3]).grid(row=4, column=1, padx=12, pady=pady)
         self.password_var = tkinter.StringVar()
-        password_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.password_var, show='●')
+        password_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.password_var, show='●',
+         highlightthickness=0, bd=0)
         password_entry.grid(row=4, column=0, padx=12, pady=pady)
         self.entries.append(password_entry)
 
@@ -225,7 +231,8 @@ class Sign_in_page(Page):
         
         tkinter.Label(entry_frame, text="تکرار رمز عبور", font=font_persian, bg=color_palette[3]).grid(row=5, column=1, padx=12, pady=pady)
         self.password_confirm_var = tkinter.StringVar()
-        password_confirm_var = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.password_confirm_var, show='●')
+        password_confirm_var = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.password_confirm_var, show='●',
+         highlightthickness=0, bd=0)
         password_confirm_var.grid(row=5, column=0, padx=12, pady=pady)
         self.entries.append(password_confirm_var)
 
@@ -288,7 +295,8 @@ class Forgot_password_page(Page):
         
         tkinter.Label(entry_frame, text="ایمیل", font=font_persian, bg=color_palette[3]).grid(row=0, column=1, padx=12, pady=4)
         self.email_var = tkinter.StringVar()
-        email_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.email_var)
+        email_entry = tkinter.Entry(entry_frame, font=font_English, width=22, textvariable=self.email_var,
+         highlightthickness=0, bd=0)
         email_entry.grid(row=0, column=0, padx=12, pady=4)
         self.entries.append(email_entry)
 

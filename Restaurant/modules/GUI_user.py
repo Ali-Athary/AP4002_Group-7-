@@ -3,7 +3,7 @@ from tkinter import font, ttk
 from PIL import ImageTk, Image  
 import os
 import sys
-from modules import GUI_user_Food_Menu_page, GUI_user_Cart
+from modules import GUI_user_Food_Menu_page, GUI_user_Cart, GUI_user_History, GUI_user_Suggestion
 
 pages = {}
 active_page_name = ""
@@ -57,8 +57,18 @@ def main(root, color_palette):
     cart_page = GUI_user_Cart.Cart_panel(main_frame, color_palette)
     pages["cart"] = cart_page
 
-    active_page_name = "cart"
-    cart_page.show()
+    #history panel
+
+    history_page = GUI_user_History.History_panel(main_frame, color_palette)
+    pages["history"] = history_page
+
+    #suggestion panel
+
+    history_page = GUI_user_Suggestion.Suggestion_panel(main_frame, color_palette)
+    pages["suggestion"] = history_page
+
+    active_page_name = "suggestion"
+    history_page.show()
 
 class Profile_info():
     def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):
@@ -128,11 +138,23 @@ class Right_menu(tkinter.Frame):
         history_image = ImageTk.PhotoImage(history_img)
 
         history_button = tkinter.Button(button_frame, image=history_image, bg=color_palette[4],
-         activebackground=color_palette[4], highlightthickness=0, bd=0)
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("history"))
         history_button.image = history_image
         history_button.grid(row=2, column=1)   
 
-        tkinter.Label(button_frame, text="تاریخچه", font=font1, bg=color_palette[4], fg=color_palette[0]).grid(row=2, column=0)   
+        tkinter.Label(button_frame, text="تاریخچه", font=font1, bg=color_palette[4], fg=color_palette[0]).grid(row=2, column=0)  
+
+        #suggestion button
+
+        suggestion_img = Image.open(os.path.join(sys.path[0], "resources\icons\history.png")).convert("RGBA")
+        suggestion_image = ImageTk.PhotoImage(suggestion_img)
+
+        suggestion_button = tkinter.Button(button_frame, image=suggestion_image, bg=color_palette[4],
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("suggestion"))
+        suggestion_button.image = suggestion_image
+        suggestion_button.grid(row=3, column=1)   
+
+        tkinter.Label(button_frame, text="نظر دهی", font=font1, bg=color_palette[4], fg=color_palette[0]).grid(row=3, column=0)    
 
     def show(self):
         self.place(x=1090, y=40)

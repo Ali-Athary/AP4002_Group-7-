@@ -1,5 +1,3 @@
-from itertools import count
-from struct import pack
 import tkinter
 from tkinter import font, ttk
 from PIL import ImageTk, Image  
@@ -20,6 +18,7 @@ class Cart_Item_UI_images():
 
         change_img = Image.open(os.path.join(sys.path[0], "resources\icons\\cart_item_change_button.png")).convert("RGBA")
         self.change = ImageTk.PhotoImage(change_img)
+
 
 class Cart_panel(tkinter.Label):
     def __init__(self, root, color_palette):
@@ -159,6 +158,8 @@ class Cart_panel(tkinter.Label):
              highlightthickness=0, bd=0, activebackground=self.color_palette[4])
             delete_button.image = self.ui_images.trash_can
             delete_button.pack(side=tkinter.LEFT, padx=18)
+
+            tkinter.Label(item_adjust_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.LEFT, padx=8)
             
 
     def show(self):
@@ -209,16 +210,15 @@ class Cart_top_bar(tkinter.Frame):
         search_frame.pack_propagate(0)
         search_frame.place(x=0,y=0)
 
-        """
         # purchase complete button
 
-        sreach_img = Image.open(os.path.join(sys.path[0], "resources\icons\search.png")).convert("RGBA")
-        sreach_image = ImageTk.PhotoImage(sreach_img)
+        complete_img = Image.open(os.path.join(sys.path[0], "resources\icons\\cart_complete_purchase_button.png")).convert("RGBA")
+        complete_image = ImageTk.PhotoImage(complete_img)
 
-        sreach_button = tkinter.Button(search_frame, bg=color_palette[3], image=sreach_image,
-         highlightthickness=0, bd=0)
-        sreach_button.image = sreach_image
-        sreach_button.pack(fill="none", expand=True) """
+        purchase_complete_button = tkinter.Button(search_frame, bg=color_palette[3], image=complete_image,
+         highlightthickness=0, bd=0, activebackground=color_palette[3])
+        purchase_complete_button.image = complete_image
+        purchase_complete_button.pack(fill="none", expand=True)
 
     def change_month(self):
         if(int(self.month_var.get()) == self.months[1]):
