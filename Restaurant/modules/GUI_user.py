@@ -3,7 +3,7 @@ from tkinter import font, ttk
 from PIL import ImageTk, Image  
 import os
 import sys
-from modules import GUI_user_Food_Menu_page, GUI_user_Cart, GUI_user_History, GUI_user_Suggestion
+from modules import GUI_user_Food_Menu_page, GUI_user_Cart, GUI_user_History, GUI_user_Suggestion, GUI_user_Profile
 
 pages = {}
 active_page_name = ""
@@ -67,8 +67,15 @@ def main(root, color_palette):
     history_page = GUI_user_Suggestion.Suggestion_panel(main_frame, color_palette)
     pages["suggestion"] = history_page
 
-    active_page_name = "suggestion"
+    #profile panel
+
+    history_page = GUI_user_Profile.Profile_panel(main_frame, color_palette)
+    pages["profile"] = history_page
+
+    active_page_name = "profile"
     history_page.show()
+
+    
 
 class Profile_info():
     def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):
@@ -94,14 +101,14 @@ class Right_menu(tkinter.Frame):
         profile_img.paste(profile_frame_image, (0, 0), profile_frame_image)
         profile_image = ImageTk.PhotoImage(profile_img)
         profile_image_label = tkinter.Button(profile_frame, image=profile_image, bg=color_palette[4],
-         activebackground=color_palette[4], highlightthickness=0, bd=0)
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("profile"))
         profile_image_label.image = profile_image
         profile_image_label.pack()   
 
         #profile name
 
         profile_image_label = tkinter.Button(profile_frame,text=profile_info.name, font=font1, bg=color_palette[4],
-         activebackground=color_palette[4], highlightthickness=0, bd=0).pack()
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("profile")).pack()
 
         #button frame
 

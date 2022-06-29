@@ -149,7 +149,7 @@ class Cart_panel(tkinter.Label):
 
             change_count_button = tkinter.Button(item_adjust_frame, image=self.ui_images.change, bg=self.color_palette[4],
              highlightthickness=0, bd=0, activebackground=self.color_palette[4])
-            change_count_button.image = self.ui_images.change
+            change_count_button.config(state="disable")
             change_count_button.place(x=240, y=70, anchor=tkinter.CENTER)
 
             #delete button

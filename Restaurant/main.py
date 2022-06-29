@@ -13,8 +13,6 @@ class App(tkinter.Tk):
         #GUI_log_in_and_sign_up.main(self, color_palette)
         GUI_user.main(self, color_palette)
 
-
-
         self.mainloop()        
 
 

@@ -173,7 +173,7 @@ class Item_ScrollableFrame(ttk.Frame):
                 troughcolor=color_palette[4], bordercolor=color_palette[3], arrowcolor=color_palette[1],
                 activerelief=tkinter.FLAT, relief=tkinter.FLAT)
 
-        canvas = tkinter.Canvas(self, height=680, width=990, bg=color_palette[3], bd=0, highlightthickness=0)
+        canvas = tkinter.Canvas(self, height=640, width=990, bg=color_palette[3], bd=0, highlightthickness=0)
         scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
 
         self.scrollable_frame = tkinter.Frame(canvas, bg=color_palette[3])
