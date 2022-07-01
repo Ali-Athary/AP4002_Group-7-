@@ -153,7 +153,7 @@ class Right_menu(tkinter.Frame):
 
         #suggestion button
 
-        suggestion_img = Image.open(os.path.join(sys.path[0], "resources\icons\history.png")).convert("RGBA")
+        suggestion_img = Image.open(os.path.join(sys.path[0], "resources\icons\letter.png")).convert("RGBA")
         suggestion_image = ImageTk.PhotoImage(suggestion_img)
 
         suggestion_button = tkinter.Button(button_frame, image=suggestion_image, bg=color_palette[4],
