@@ -3,7 +3,7 @@ from tkinter import font, ttk
 from PIL import ImageTk, Image  
 import os
 import sys
-from modules import GUI_restaurant_Profile, GUI_user_Profile
+from modules import GUI_manager_Inventory, GUI_restaurant_Profile, GUI_user_Profile
 
 pages = {}
 active_page_name = ""
@@ -46,16 +46,21 @@ def main(root, color_palette):
 
     # user profile
 
-    food_menu_page = GUI_user_Profile.Profile_panel(main_frame, color_palette)
-    pages["user_profile"] = food_menu_page
+    profile_page = GUI_user_Profile.Profile_panel(main_frame, color_palette)
+    pages["user_profile"] = profile_page
+
+    active_page_name = "user_profile"
+    profile_page.show()
 
     #restaurant profile panel
 
-    food_menu_page = GUI_restaurant_Profile.Profile_panel(main_frame, color_palette)
-    pages["restaurant_profile"] = food_menu_page
+    restaurant_Profile_page = GUI_restaurant_Profile.Profile_panel(main_frame, color_palette)
+    pages["restaurant_profile"] = restaurant_Profile_page
 
-    active_page_name = "restaurant_profile"
-    food_menu_page.show()
+    #inventory panel
+
+    inventory_page = GUI_manager_Inventory.Food_inventory_panel(main_frame, color_palette)
+    pages["inventory"] = inventory_page
 
 class Profile_info():
     def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):
@@ -105,7 +110,7 @@ class Right_menu(tkinter.Frame):
         #inventory button
 
         inventory_button = tkinter.Button(button_frame, text="موجودی غذا", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("cart"))
+         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("inventory"))
         inventory_button.pack(pady=6)
 
         #orders button
