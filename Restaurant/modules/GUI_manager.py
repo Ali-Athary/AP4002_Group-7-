@@ -3,8 +3,8 @@ from tkinter import font, ttk
 from PIL import ImageTk, Image  
 import os
 import sys
-from modules import GUI_manager_Inventory, GUI_restaurant_Profile, GUI_user_Profile
-
+from modules import GUI_manager_Inventory, GUI_restaurant_Profile, GUI_user_Profile, GUI_manager_Orders
+from modules import GUI_manager_Financial
 pages = {}
 active_page_name = ""
 
@@ -62,6 +62,18 @@ def main(root, color_palette):
     inventory_page = GUI_manager_Inventory.Food_inventory_panel(main_frame, color_palette)
     pages["inventory"] = inventory_page
 
+    #orders panel
+
+    orders_page = GUI_manager_Orders.Orders_panel(main_frame, color_palette)
+    pages["orders"] = orders_page
+
+    #orders panel
+
+    financial_page = GUI_manager_Financial.Information_panel(main_frame, color_palette)
+    pages["financial"] = financial_page
+    
+    
+
 class Profile_info():
     def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):
         self.name = profile_name
@@ -73,7 +85,7 @@ class Right_menu(tkinter.Frame):
         super().__init__(root, width=160, height=640, bg=color_palette[4])
         self.pack_propagate(0)
 
-        font1 = font.Font(family="Mj_Flow", size=20)
+        font1 = font.Font(family="Mj_Flow", size=18)
 
         #profile frame
 
@@ -99,7 +111,7 @@ class Right_menu(tkinter.Frame):
         #button frame
 
         button_frame = tkinter.Frame(self, bg=color_palette[4])
-        button_frame.pack(pady=40)
+        button_frame.pack(pady=20)
 
         #Restaurant information button
 
@@ -116,14 +128,26 @@ class Right_menu(tkinter.Frame):
         #orders button
 
         orders_button = tkinter.Button(button_frame, text="سفارشات", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("history"))
+         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("orders"))
         orders_button.pack(pady=6)
 
-        #Economic information button
+        #financial information button
 
-        suggestion_button = tkinter.Button(button_frame, text="اطلاعات اقتصادی", bg=color_palette[2], width=22, font=font1,
+        financial_information_button = tkinter.Button(button_frame, text="اطلاعات اقتصادی", bg=color_palette[2], width=22, font=font1,
+         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("financial"))
+        financial_information_button.pack(pady=6)
+
+        #food menu button
+
+        food_menu_button = tkinter.Button(button_frame, text="منو غذا", bg=color_palette[2], width=22, font=font1,
          activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("suggestion"))
-        suggestion_button.pack(pady=6)
+        food_menu_button.pack(pady=6)
+
+        #discaounts button
+
+        discaounts_button = tkinter.Button(button_frame, text="تخفیف ها", bg=color_palette[2], width=22, font=font1,
+         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("suggestion"))
+        discaounts_button.pack(pady=6)
 
     def show(self):
         self.place(x=1090, y=40)

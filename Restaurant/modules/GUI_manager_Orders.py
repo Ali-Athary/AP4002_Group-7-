@@ -19,7 +19,7 @@ class Food_item_UI_images():
         add_img = Image.open(os.path.join(sys.path[0], "resources\icons\\add.png")).convert("RGBA")
         self.add = ImageTk.PhotoImage(add_img)
 
-class Food_inventory_panel(tkinter.Label):
+class Orders_panel(tkinter.Label):
     def __init__(self, root, color_palette):
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\user_food_menu_panel.png")).convert("RGBA")
@@ -30,23 +30,34 @@ class Food_inventory_panel(tkinter.Label):
 
         #top bar
 
-        top_bar = Food_inventory_top_bar(self, color_palette)
-        top_bar.show()
+        self.top_bar = Food_manu_top_bar(self, color_palette)
+        self.top_bar.show()
 
-        #food items frame
+        #orders item frame
 
-        self.food_frame = Food_Item_ScrollableFrame(self, color_palette)
-        self.food_frame.place(x=20, y=100)
+        self.oderes_frames = {}
+
+        unaccepted_orders_frame = Food_Item_ScrollableFrame(self, color_palette)
+        self.oderes_frames["unaccepted_orders_frame"] = unaccepted_orders_frame
+        self.change_order_frame("unaccepted_orders_frame")
+
+        accepted_orders_frame = Food_Item_ScrollableFrame(self, color_palette)
+        self.oderes_frames["accepted_orders_frame"] = accepted_orders_frame
+        
+        completed_orders_frame = Food_Item_ScrollableFrame(self, color_palette)
+        self.oderes_frames["completed_orders_frame"] = completed_orders_frame
 
         self.item_ui_image = Food_item_UI_images()
 
         for i in range(20):
-            self.add_food_to_list("پیتزا پپرونی", 140000)
+            self.add_food_to_list(unaccepted_orders_frame, "پیتزا پپرونی", 140000)
+            self.add_food_to_list(accepted_orders_frame, "پیتزا پپرونی", 200)
+            self.add_food_to_list(completed_orders_frame, "پیتزا پپرونی", 1000)
 
-    def add_food_to_list(self, name, price):
+    def add_food_to_list(self, root, name, price):
         #item frame
 
-        frame = tkinter.Frame(self.food_frame.scrollable_frame, width=980, height=200, bg=self.color_palette[3])
+        frame = tkinter.Frame(root.scrollable_frame, width=980, height=200, bg=self.color_palette[3])
         frame.pack()
 
         #background
@@ -159,23 +170,52 @@ class Food_inventory_panel(tkinter.Label):
         image_label.image = food_image_with_mask
         image_label.place(x=0,y=0)
 
+    def change_order_frame(self, frame_name):
+        for frame in self.oderes_frames.values():
+            frame.place_forget()
+        self.oderes_frames[frame_name].place(x=20, y=100)
+        self.top_bar.hide()
+        self.top_bar.show()
+
     def show(self):
         self.place(x=20, y=20)
 
     def hide(self):
         self.place_forget()
     
-class Food_inventory_top_bar(tkinter.Frame):
+class Food_manu_top_bar(tkinter.Frame):
     def __init__(self, root, color_palette):
         super().__init__(root, width=1000, height=60, bg=color_palette[3])
         self.pack_propagate(0)
 
         font1 = font.Font(family="Mj_Flow", size=25)
         font2 = font.Font(family="Dast Nevis", size=30)
+        font3 = font.Font(family="Mj_Flow", size=20)
 
-        # title
+        # Date
 
-        tkinter.Label(self, text="موجودی غذا", bg=color_palette[3], font=font1).pack(side=tkinter.RIGHT, padx=30)
+        tkinter.Label(self, text="سفارشات", bg=color_palette[3], font=font1).pack(side=tkinter.RIGHT, padx=30)
+
+        # choose order type
+
+        frame = tkinter.Frame(self, height=60, width=380, bg=color_palette[3])
+        frame.pack_propagate(0)
+        frame.pack(side=tkinter.LEFT, padx=20)
+
+        tkinter.Label(frame, text="نوع سفارشات", font=font3, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=2)
+        tkinter.Label(frame, text=":", font=font3, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=2)
+
+        Types = ["در انتظار تسویه حساب", "در انتظار ارسال", "ارسال شده"]
+        frame_dict = {Types[0]:"unaccepted_orders_frame",Types[1]:"accepted_orders_frame",Types[2]:"completed_orders_frame"}
+
+        order_type_var = tkinter.StringVar()
+        order_type_var.set(Types[0])
+
+        order_type_menu = Drop_Down_Menu(frame, order_type_var, Types, font_=font3,
+         font_color=color_palette[0], color1=color_palette[3], color2=color_palette[4])
+        order_type_menu.pack(side=tkinter.RIGHT, padx=2)
+
+        order_type_var.trace("w", lambda x, y, z:root.change_order_frame(frame_dict[order_type_var.get()]))
 
     def show(self):
         self.place(x=30, y=8)
