@@ -1,5 +1,6 @@
 import tkinter 
-from modules import GUI_log_in_and_sign_up, GUI_user, GUI_manager
+from modules import GUI_log_in_and_sign_up, GUI_user, GUI_manager, DataBase
+import os, sys
  
 color_palette = ["#361d32", "#543c52", "#f55951", "#f1e8e6", "#edd2cb"]
 
@@ -10,9 +11,11 @@ class App(tkinter.Tk):
         self.configure(bg= color_palette[4])
         self.title("Restaurant")
 
-        #GUI_log_in_and_sign_up.main(self, color_palette)
+        db = DataBase.DB(os.path.join(sys.path[0], "database/database.db"))
+
+        GUI_log_in_and_sign_up.main(self, color_palette, db)
         #GUI_user.main(self, color_palette)
-        GUI_manager.main(self, color_palette)
+        #GUI_manager.main(self, color_palette)
 
         self.mainloop()        
 
