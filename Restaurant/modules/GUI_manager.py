@@ -4,7 +4,7 @@ from PIL import ImageTk, Image
 import os
 import sys
 from modules import GUI_manager_Inventory, GUI_restaurant_Profile, GUI_user_Profile, GUI_manager_Orders
-from modules import GUI_manager_Financial
+from modules import GUI_manager_Financial, GUI_manager_Food_menu
 pages = {}
 active_page_name = ""
 
@@ -71,7 +71,12 @@ def main(root, color_palette):
 
     financial_page = GUI_manager_Financial.Information_panel(main_frame, color_palette)
     pages["financial"] = financial_page
-    
+
+    #food menu
+
+    financial_page = GUI_manager_Food_menu.Food_menu_panel(main_frame, color_palette)
+    pages["food_menu"] = financial_page
+
     
 
 class Profile_info():
@@ -140,7 +145,7 @@ class Right_menu(tkinter.Frame):
         #food menu button
 
         food_menu_button = tkinter.Button(button_frame, text="منو غذا", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("suggestion"))
+         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("food_menu"))
         food_menu_button.pack(pady=6)
 
         #discaounts button
