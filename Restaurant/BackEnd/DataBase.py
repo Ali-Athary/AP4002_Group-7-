@@ -1,6 +1,6 @@
 import sqlite3
 import os
-from PIL import ImageTk, Image
+from PIL import Image
 import time
 import UserAndManager
 import Food
@@ -9,6 +9,7 @@ class DB:
     def __init__(self, path):
         if os.path.exists(path):
             self.con = sqlite3.connect(path)
+            self.cur = self.con.cursor()
         else:
             self.con = sqlite3.connect(path)
             self.cur = self.con.cursor()
@@ -31,7 +32,7 @@ class DB:
             self.cur.execute('''
             CREATE TABLE food
             (
-                food_id TEXT
+                food_id INTEGER
                 name TEXT, 
                 price INTEGER, 
                 picture BLOB, 
@@ -66,8 +67,8 @@ class DB:
                 id TEXT, 
                 email TEXT,
                 phone TEXT,
-                picture BLOB
-                personal_id TEXT PRIMARY KEY
+                picture BLOB,
+                personal_id TEXT PRIMARY KEY,
                 password TEXT
             )
             ''')
@@ -176,14 +177,70 @@ class DB:
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
     
-    def create_food(self):
+    def change_manager_info(self, personal_id, name, l_name, phone, email):
+        self.cur.execute('''
+            UPDATE admin
+            SET name = ?,
+                l_name = ?,
+                phone = ?,
+                email = ?
+            WHERE personal_id = ?
+        ''', (name, l_name, phone, email, personal_id))
+
+    def create_food(self, food_id, name, price, picture, discription1, discription2, count):
+        discription = self.discription_list_to_str(discription1, discription2)
+        picture = self.image_to_array(picture)
+        self.cur.execute('''
+            INSERT INTO food VALUES(
+                ?, ?, ?, ?, ?, ?
+            )
+        ''', (food_id, name, price, picture, discription, count))
         self.con.commit()
 
-    def change_food_amount(self, food_id, changes):
-        self.con.commit()
+    def change_food_amount(self, food_id, changes : int):
+        '''changes food amount in the data-base
+            returns 0 if it was successful
+            otherwise returns 1
+        '''
+        if changes > 0:
+            # add
+            amount = self.cur.execute('''
+                SELECT count FROM food WHERE food_id = ?
+            ''', (food_id, )).fetchone()[0]
+            self.cur.execute('''
+                UPDATE food
+                SET count = ?
+                WHERE food_id = ?
+            ''', (amount + changes, food_id))
+            self.con.commit()
+            return 0
+        elif changes < 0:
+            # buy food
+            amount = self.cur.execute('''
+                SELECT count FROM food WHERE food_id = ?
+            ''', (food_id, )).fetchone()[0]
+            if amount + changes < 0:
+                self.con.commit()
+                return 1
+            else:
+                self.cur.execute('''
+                    UPDATE food
+                    SET count = ?
+                    WHERE food_id = ?
+                ''', (amount + changes, food_id))
+                self.con.commit()
+                return 0
 
-    def get_foods_obj(self, food_id):
-        return []
+    def get_foods_obj(self):
+        food_list = []
+        table = self.get_table_data('food')
+        for _ in table:
+            food_list.append(Food.Food(_[0], _[1], _[2], 
+            self.array_to_image(_[3]), 
+            self.discription_str_to_list(_[4])[0], 
+            self.discription_str_to_list(_[4])[1],
+            _[5]))
+        return food_list
     
     def get_user_log(self, email):
         user_id = self.get_user_id(email)
@@ -232,7 +289,7 @@ class DB:
                 INSERT INTO {user_id}_food_log VALUES(
                     ?, ?, ?, ?, ?
                 )
-            ''', (p_n_max, food.food_id, food.date, food.count, food.price))
+            ''', (p_n_max, food.name, food.date, food.count, food.price))
 
         self.con.commit()
         
@@ -248,3 +305,16 @@ class DB:
 
     def close(self):
         self.con.close()
+    
+    @staticmethod
+    def discription_list_to_str(discription1, discription2):
+        return discription1 + '|' + discription2
+    @staticmethod
+    def discription_str_to_list(discription_str : str):
+        return discription_str.split('|')
+    @staticmethod
+    def image_to_array(image: Image.Image()):
+        ...
+    @staticmethod
+    def array_to_image(array):
+        ...
