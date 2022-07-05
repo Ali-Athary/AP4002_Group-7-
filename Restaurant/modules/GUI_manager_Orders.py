@@ -5,13 +5,13 @@ import os
 import sys
 import jdatetime
 
-class Food_item_UI_images():
+class Order_item_UI_images():
     def __init__(self):
-        background_img = Image.open(os.path.join(sys.path[0], "resources\panels\\food_item_base.png")).convert("RGBA")
+        background_img = Image.open(os.path.join(sys.path[0], "resources\panels\\order_item_base.png")).convert("RGBA")
         self.background = ImageTk.PhotoImage(background_img)
 
-        plus_img = Image.open(os.path.join(sys.path[0], "resources\icons\\plus.png")).convert("RGBA")
-        self.plus = ImageTk.PhotoImage(plus_img.resize((40,40), Image.ANTIALIAS))
+        view_img = Image.open(os.path.join(sys.path[0], "resources\icons\\view_buuton.png")).convert("RGBA")
+        self.view = ImageTk.PhotoImage(view_img)
 
         minus_img = Image.open(os.path.join(sys.path[0], "resources\icons\\minus.png")).convert("RGBA")
         self.minus = ImageTk.PhotoImage(minus_img.resize((40,40), Image.ANTIALIAS))
@@ -30,152 +30,42 @@ class Orders_panel(tkinter.Label):
 
         #top bar
 
-        self.top_bar = Food_manu_top_bar(self, color_palette)
+        self.top_bar = Orders_top_bar(self, color_palette)
         self.top_bar.show()
+
+        #header 
+
+        self.orders_header = Orders_header(self, color_palette)
+        self.orders_header.show()
 
         #orders item frame
 
         self.oderes_frames = {}
 
-        unaccepted_orders_frame = Food_Item_ScrollableFrame(self, color_palette)
-        self.oderes_frames["unaccepted_orders_frame"] = unaccepted_orders_frame
-        self.change_order_frame("unaccepted_orders_frame")
+        unpaid_orders_frame = Order_Item_ScrollableFrame(self, color_palette)
+        self.oderes_frames["unpaid_orders_frame"] = unpaid_orders_frame
+        self.change_order_frame("unpaid_orders_frame")
 
-        accepted_orders_frame = Food_Item_ScrollableFrame(self, color_palette)
-        self.oderes_frames["accepted_orders_frame"] = accepted_orders_frame
+        unaccepted_orders_frame = Order_Item_ScrollableFrame(self, color_palette)
+        self.oderes_frames["unaccepted_orders_frame"] = unaccepted_orders_frame
         
-        completed_orders_frame = Food_Item_ScrollableFrame(self, color_palette)
+        completed_orders_frame = Order_Item_ScrollableFrame(self, color_palette)
         self.oderes_frames["completed_orders_frame"] = completed_orders_frame
 
-        self.item_ui_image = Food_item_UI_images()
-
         for i in range(20):
-            self.add_food_to_list(unaccepted_orders_frame, "پیتزا پپرونی", 140000)
-            self.add_food_to_list(accepted_orders_frame, "پیتزا پپرونی", 200)
-            self.add_food_to_list(completed_orders_frame, "پیتزا پپرونی", 1000)
-
-    def add_food_to_list(self, root, name, price):
-        #item frame
-
-        frame = tkinter.Frame(root.scrollable_frame, width=980, height=200, bg=self.color_palette[3])
-        frame.pack()
-
-        #background
-
-        background = tkinter.Label(frame, image=self.item_ui_image.background, bg=self.color_palette[3])
-        background.image = self.item_ui_image.background
-        background.place(x=0,y=0)
-
-        #fonts
-
-        font1 = font.Font(family="Mj_Flow", size=40)
-        font_dasnevis_0 = font.Font(family="Dast Nevis", size=18)
-        font_dasnevis_1 = font.Font(family="Dast Nevis", size=30)
-        font_dasnevis_2 = font.Font(family="Dast Nevis", size=35)
-
-        #name
-
-        tkinter.Label(frame, text=name, fg="white", bg=self.color_palette[2], font=font_dasnevis_2).place(x=940, y=30, anchor=tkinter.NE)
-
-        #price 
-
-        price_frame = tkinter.Frame(frame, width=160, height=40, bg=self.color_palette[2])
-        price_frame.place(x=940, y=120, anchor=tkinter.NE)
-
-        tkinter.Label(price_frame, text=f"{str(int(price))[:-3]},{str(int(price))[-3:]}", fg="white",
-         bg=self.color_palette[2], font=font_dasnevis_0).grid(row=0, column=1)
-        tkinter.Label(price_frame, text="تومان", fg="white",
-         bg=self.color_palette[2], font=font_dasnevis_0).grid(row=0, column=0, padx=6)
-
-        #descriptiona
-
-        descriptiona_frame = tkinter.Frame(frame, width=300, height=120, bg=self.color_palette[2])
-        descriptiona_frame.pack_propagate(0)
-        descriptiona_frame.place(x=740, y=40, anchor=tkinter.NE)
-
-        ingrediente = ["گوشت، پنیر، قارچ، پپرونی", "سس مخصوص، خمیر مخصوص"]
-
-        f = tkinter.Frame(descriptiona_frame, bg=self.color_palette[2])
-        f.pack(expand=True, fill="none")
-
-        for line in ingrediente:
-            tkinter.Label(f, text=line, bg=self.color_palette[2], font=font_dasnevis_0).pack()
-
-        #count
-
-        count = 0
-
-        count_label = tkinter.Label(frame, text=count, font=font_dasnevis_1, fg="white", bg=self.color_palette[2])
-        count_label.place(x=330, y=60, anchor=tkinter.CENTER)
-
-        #number left
-
-        left = 10
-
-        left_label = tkinter.Label(frame, text=f"تعداد {left} عدد باقی مانده", font=font_dasnevis_0, fg="white", bg=self.color_palette[2])
-        left_label.place(x=330, y=100, anchor=tkinter.CENTER)
-
-        #plus button
-
-        def plus_buuton():
-            nonlocal count
-            nonlocal count_label
-            if(left > 0):
-                count += 1
-                count_label.configure(text=count)
-
-        plus_button = tkinter.Button(frame, image=self.item_ui_image.plus, bg=self.color_palette[2],
-         highlightthickness=0, bd=0, activebackground=self.color_palette[2], command=plus_buuton)
-        plus_button.image = self.item_ui_image.plus
-        plus_button.place(x=330+50, y=60, anchor=tkinter.CENTER)
-
-        #minus button
-
-        def minus_buuton():
-            nonlocal count
-            nonlocal count_label
-            if(count > 0):
-                count -= 1
-                count_label.configure(text=count)
-
-        minus_button = tkinter.Button(frame, image=self.item_ui_image.minus, bg=self.color_palette[2],
-         highlightthickness=0, bd=0, activebackground=self.color_palette[2], command=minus_buuton)
-        minus_button.image = self.item_ui_image.minus
-        minus_button.place(x=330-50, y=60, anchor=tkinter.CENTER)
-
-        #add button
-
-        def add():
-            nonlocal count, left
-            nonlocal count_label, left_label
-            left += count
-            count = 0
-            left_label.configure(text=f"تعداد {left} عدد باقی مانده")
-            count_label.configure(text=count)
-
-        minus_button = tkinter.Button(frame, image=self.item_ui_image.add, bg=self.color_palette[2],
-         highlightthickness=0, bd=0, activebackground=self.color_palette[2], command=add)
-        minus_button.image = self.item_ui_image.add
-        minus_button.place(x=330, y=145, anchor=tkinter.CENTER)
-
-        #image
-
-        food_img = Image.open(os.path.join(sys.path[0], "resources\panels\\pitza.jpg")).convert("RGBA")
-        food_image = food_img.resize((200,200), Image.ANTIALIAS)
-        mask_img = Image.open(os.path.join(sys.path[0], "resources\panels\\food_image_mask.png")).convert("RGBA")
-        food_image.paste(mask_img, (0, 0), mask_img)
-        food_image_with_mask = ImageTk.PhotoImage(food_image)
-
-        image_label = tkinter.Label(frame, image=food_image_with_mask, highlightthickness=0, bd=0)
-        image_label.image = food_image_with_mask
-        image_label.place(x=0,y=0)
+            self.oderes_frames["unpaid_orders_frame"].add_item("علی اطهری", "12,140,433", "1401/04/14", "-")
+            self.oderes_frames["unaccepted_orders_frame"].add_item("علی اطهری", "140،123", "1401/04/14", "1401/04/15")
+            self.oderes_frames["completed_orders_frame"].add_item("علی اطهری", "140،123", "1401/04/14", "1401/04/15")
+            pass
 
     def change_order_frame(self, frame_name):
         for frame in self.oderes_frames.values():
-            frame.place_forget()
-        self.oderes_frames[frame_name].place(x=20, y=100)
+            frame.hide()
+        self.oderes_frames[frame_name].show()
         self.top_bar.hide()
         self.top_bar.show()
+        self.orders_header.hide()
+        self.orders_header.show()
 
     def show(self):
         self.place(x=20, y=20)
@@ -183,7 +73,7 @@ class Orders_panel(tkinter.Label):
     def hide(self):
         self.place_forget()
     
-class Food_manu_top_bar(tkinter.Frame):
+class Orders_top_bar(tkinter.Frame):
     def __init__(self, root, color_palette):
         super().__init__(root, width=1000, height=60, bg=color_palette[3])
         self.pack_propagate(0)
@@ -206,7 +96,7 @@ class Food_manu_top_bar(tkinter.Frame):
         tkinter.Label(frame, text=":", font=font3, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=2)
 
         Types = ["در انتظار تسویه حساب", "در انتظار ارسال", "ارسال شده"]
-        frame_dict = {Types[0]:"unaccepted_orders_frame",Types[1]:"accepted_orders_frame",Types[2]:"completed_orders_frame"}
+        frame_dict = {Types[0]:"unpaid_orders_frame",Types[1]:"unaccepted_orders_frame",Types[2]:"completed_orders_frame"}
 
         order_type_var = tkinter.StringVar()
         order_type_var.set(Types[0])
@@ -223,6 +113,29 @@ class Food_manu_top_bar(tkinter.Frame):
     def hide(self):
         self.place_forget()
 
+class Orders_header(tkinter.Frame):
+    def __init__(self, root, color_palette):
+        super().__init__(root, width=1010, height=66, bg=color_palette[3])
+        self.pack_propagate(0)
+
+        font1 = font.Font(family="Mj_Flow", size=20)
+        font2 = font.Font(family="Dast Nevis", size=30)
+        font3 = font.Font(family="Mj_Flow", size=20)
+
+        tkinter.Label(self, text="   ", bg=color_palette[3], font=font1).pack(side=tkinter.RIGHT)
+        tkinter.Label(self, text="نام کاربر", bg=color_palette[3], font=font1).pack(side=tkinter.RIGHT, padx=90)
+        tkinter.Label(self, text="هزینه سفارش", bg=color_palette[3], font=font1).pack(side=tkinter.RIGHT, padx=20)
+        tkinter.Label(self, text="تاریخ سفارش", bg=color_palette[3], font=font1).pack(side=tkinter.RIGHT, padx=30)
+        tkinter.Label(self, text="تاریخ ارسال", bg=color_palette[3], font=font1).pack(side=tkinter.RIGHT, padx=30)
+        tkinter.Label(self, text="جزییات سفارش", bg=color_palette[3], font=font1).pack(side=tkinter.RIGHT, padx=30)
+        
+
+    def show(self):
+        self.place(x=20, y=90)
+
+    def hide(self):
+        self.place_forget()
+
 class Drop_Down_Menu(tkinter.OptionMenu):
     def __init__(self, master, variable, values, font_=None, font_color="black", color1="white", color2="blue"):
         super().__init__(master, variable, *values)
@@ -231,9 +144,11 @@ class Drop_Down_Menu(tkinter.OptionMenu):
         self["menu"].config(font=font_, fg=font_color, bg=color1, activebackground=color2, 
          activeforeground=font_color, relief=tkinter.FLAT, bd=0)
 
-class Food_Item_ScrollableFrame(ttk.Frame):
+class Order_Item_ScrollableFrame(ttk.Frame):
     def __init__(self, container, color_palette, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
+        self.item_ui_image = Order_item_UI_images()
+        self.color_palette = color_palette
         
         style = ttk.Style()
         style.theme_use('clam')
@@ -242,7 +157,7 @@ class Food_Item_ScrollableFrame(ttk.Frame):
                 troughcolor=color_palette[4], bordercolor=color_palette[3], arrowcolor=color_palette[1],
                 activerelief=tkinter.FLAT, relief=tkinter.FLAT)
 
-        canvas = tkinter.Canvas(self, height=560, width=990, bg=color_palette[3], bd=0, highlightthickness=0)
+        canvas = tkinter.Canvas(self, height=520, width=990, bg=color_palette[3], bd=0, highlightthickness=0)
         scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
 
         self.scrollable_frame = tkinter.Frame(canvas, bg=color_palette[3])
@@ -260,3 +175,54 @@ class Food_Item_ScrollableFrame(ttk.Frame):
 
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+
+    def add_item(self, user_name, order_price, order_date, sent_date):
+        frame = tkinter.Frame(self.scrollable_frame, width=980, height=90, bg=self.color_palette[1])
+        frame.pack_propagate(0)
+        frame.pack(pady=4)
+
+        #background 
+        
+        background = tkinter.Label(frame, image=self.item_ui_image.background, bg=self.color_palette[3])
+        background.image = self.item_ui_image.background
+        background.place(x=0, y=0)
+
+        #info
+
+        font1 = font.Font(family="Mj_Flow", size=20)
+        font2 = font.Font(family="Dast Nevis", size=20)
+        font3 = font.Font(family="Mj_Flow", size=20)
+
+        # user name
+
+        tkinter.Label(frame, text=user_name, bg=self.color_palette[3], font=font1, width=12).pack(side=tkinter.RIGHT, padx=10)
+        tkinter.Label(frame, text="", bg=self.color_palette[2], font=font1).pack(side=tkinter.RIGHT)
+
+        # order price
+
+        tkinter.Label(frame, text=order_price, bg=self.color_palette[3], font=font2, width=10).pack(side=tkinter.RIGHT)
+        tkinter.Label(frame, text="", bg=self.color_palette[2], font=font1).pack(side=tkinter.RIGHT)
+
+        # order date
+
+        tkinter.Label(frame, text=order_date, bg=self.color_palette[3], font=font2, width=9).pack(side=tkinter.RIGHT)
+        tkinter.Label(frame, text="", bg=self.color_palette[2], font=font1).pack(side=tkinter.RIGHT)
+
+        # sent date
+
+        tkinter.Label(frame, text=sent_date, bg=self.color_palette[3], font=font2, width=9).pack(side=tkinter.RIGHT)
+        tkinter.Label(frame, text="", bg=self.color_palette[2], font=font1).pack(side=tkinter.RIGHT)
+
+        # view button
+
+        view_button = tkinter.Button(frame, image=self.item_ui_image.view, bg=self.color_palette[3],
+         activebackground=self.color_palette[3], highlightthickness=0, bd=0)
+        view_button.image = self.item_ui_image.view
+        view_button.pack(side=tkinter.RIGHT, padx=26)
+    def show(self):
+        self.place(x=20, y=160)
+    
+    def hide(self):
+        self.place_forget()
+
+   
