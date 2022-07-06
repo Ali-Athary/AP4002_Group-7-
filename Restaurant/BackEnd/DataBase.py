@@ -341,7 +341,21 @@ class DB:
         WHERE user_id = ?
         ''', (food_data, user_id))
     
-    def add_discount_code(code, value):
-        ...
-    def get_discount():
-        ...
+    def add_discount_code(self, code, value):
+        self.cur.execute('''
+        INSERT INTO discount VALUES(?, ?)
+        ''', (code, value))
+    def get_discount_value(self, code):
+        return self.cur.execute('''
+        SELECT off_value FROM discount WHERE 
+        offcode = ?
+        ''', (code, )).fetchone()[0]
+    def use_discount(self, code) -> int:
+        value = self.cur.execute('''
+        SELECT off_value FROM discount WHERE 
+        offcode = ?
+        ''', (code, )).fetchone()[0]
+        self.cur.execute('''
+        DELETE FROM discount WHERE offcode = ?
+        ''', (code, ))
+        return value
