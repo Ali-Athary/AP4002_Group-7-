@@ -48,7 +48,7 @@ class DB:
                 user_id TEXT,
                 food_data TEXT
             )
-            ''')
+            ''') # food_data : |food_id$name$date$count|
 
             # users password table
             self.cur.execute('''
@@ -77,6 +77,15 @@ class DB:
             self.cur.execute('''
             INSERT INTO admin(name, last_name, email, personal_id, password) VALUES(
                 "name", "last_name", "email@mail.com", "p12345678", "password"
+            )
+            ''')
+
+            # restaurant data
+
+            self.cur.execute('''
+            CREATE TABLE discount(
+                offcode TEXT,
+                off_value INTEGER
             )
             ''')
         self.con.commit()
@@ -114,7 +123,9 @@ class DB:
             date TEXT
         )
         ''')
-
+        self.cur.execute('''
+        INSERT INTO last_order VALUES (?, ?)
+        ''', (user_id, ''))
         # add a record to password table
         self.cur.execute('''
         INSERT INTO password VALUES (?, ?)
@@ -159,12 +170,16 @@ class DB:
         self.con.commit() 
 
     def get_user_obj(self, email, password):
+        user_id = self.get_user_id(email)
         user_pass = self.cur.execute('''
-        SELECT pasword FROM user WHERE email = ?
-        ''', (email, )).fetchone()
+        SELECT password FROM password WHERE user_id = ?
+        ''', (user_id, )).fetchone()
         if user_pass != None and user_pass[0] == hash(password):
-            user_id = self.get_user_id(email)
-            return UserAndManager.User(user_id)
+            data = self.cur.execute('''
+            SELECT * from user WHERE user_id = ?
+            ''', (user_id, )).fetchone()
+            return UserAndManager.User(data[0], data[1], data[2], 
+            data[3], data[4], data[5], user_id, self)
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
 
@@ -284,12 +299,12 @@ class DB:
                 ?, ?, ?, ?, ?
             )
         """, (p_n_max + 1, order_log.total_price, order_log.off_code, order_log.off_value, order_log.date))
-        for food in order_log.foods_list:
+        for food in order_log.food_log_list:
             self.cur.execute(f'''
                 INSERT INTO {user_id}_food_log VALUES(
                     ?, ?, ?, ?, ?
                 )
-            ''', (p_n_max, food.name, food.date, food.count, food.price))
+            ''', (p_n_max, food.food_id, food.name, food.date, food.count, food.price))
 
         self.con.commit()
         
@@ -317,4 +332,16 @@ class DB:
         ...
     @staticmethod
     def array_to_image(array):
+        ...
+    
+    def update_last_order(self, user_id, food_data):
+        self.cur.execute('''
+        UPDATE last_order
+        SET food_data = ?
+        WHERE user_id = ?
+        ''', (food_data, user_id))
+    
+    def add_discount_code(code, value):
+        ...
+    def get_discount():
         ...
