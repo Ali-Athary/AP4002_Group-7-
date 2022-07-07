@@ -5,7 +5,7 @@ currect form, otherwise they return the
 error message in a string form
 '''
 
-import DataBase
+from modules import DataBase
 
 def name_val(name): 
     # validates name

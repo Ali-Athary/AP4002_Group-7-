@@ -2,8 +2,8 @@ import sqlite3
 import os
 from PIL import Image
 import time
-import UserAndManager
-import Food
+#import UserAndManager
+#import Food
 
 class DB:
     def __init__(self, path):
@@ -97,7 +97,7 @@ class DB:
             )
             ''')
         self.con.commit()
-
+    
     def create_account(self, name, l_name, 
         id, phone, email : str, password):
 
@@ -139,7 +139,7 @@ class DB:
         INSERT INTO password VALUES (?, ?)
         ''', (user_id, hash(password)))
         self.con.commit()
-    
+
     def change_account_info(self, new_name, new_l_name, 
         new_id, new_phone, new_email, email):
         # changes accounts info on data base
@@ -183,11 +183,16 @@ class DB:
         SELECT password FROM password WHERE user_id = ?
         ''', (user_id, )).fetchone()
         if user_pass != None and user_pass[0] == hash(password):
+<<<<<<< HEAD:Restaurant/BackEnd/DataBase.py
             data = self.cur.execute('''
             SELECT * from user WHERE user_id = ?
             ''', (user_id, )).fetchone()
             return UserAndManager.User(data[0], data[1], data[2], 
             data[3], data[4], data[5], user_id, self)
+=======
+            user_id = self.get_user_id(email)
+            #return UserAndManager.User(user_id)
+>>>>>>> 5d483edc3532b5aa4181584c3bd60a732673fe0f:Restaurant/modules/DataBase.py
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
 
@@ -196,10 +201,15 @@ class DB:
         SELECT pasword FROM admin WHERE personal_id = ?
         ''', (personal_id, )).fetchone()
         if user_pass != None and user_pass[0] == password:
+<<<<<<< HEAD:Restaurant/BackEnd/DataBase.py
             x = self.cur.execute('''
                 SELECT * FROM admin WHERE personal_id = ?
                 ''', (personal_id, )).fetchone()
             return UserAndManager.Manager(personal_id, *x[:6])
+=======
+            pass
+            #return UserAndManager.Manager(personal_id)
+>>>>>>> 5d483edc3532b5aa4181584c3bd60a732673fe0f:Restaurant/modules/DataBase.py
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
     
@@ -268,33 +278,34 @@ class DB:
             _[5]))
         return food_list
     
-    def get_user_log(self, email):
-        user_id = self.get_user_id(email)
-        log_list = []
-        temp_list_foods = self.cur.execute(f"""
-            SELECT * FROM {user_id}_food_log
-        """).fetchall()
-        temp_list_orders = self.cur.execute(f"""
-            SELECT * FROM {user_id}_order_log
-        """).fetchall()
-        p_n_max = 0
-        for i in temp_list_foods:
-            if i[0] > p_n_max:
-                p_n_max = i[0]
-        for i in range(p_n_max, 0):
-            food_list = []
-            for record in temp_list_foods:
-                if record(0) == i:
-                    food_list.append(Food.FoodLog(*record[1:]))
-            for order in temp_list_orders:
-                if order[0] == i:
-                    log_list.append(Food.OrderLog(food_list, order[1], order[2], order[3], order[4]))
+    # def get_user_log(self, email):
+    #     user_id = self.get_user_id(email)
+    #     log_list = []
+    #     temp_list_foods = self.cur.execute(f"""
+    #         SELECT * FROM {user_id}_food_log
+    #     """).fetchall()
+    #     temp_list_orders = self.cur.execute(f"""
+    #         SELECT * FROM {user_id}_order_log
+    #     """).fetchall()
+    #     p_n_max = 0
+    #     for i in temp_list_foods:
+    #         if i[0] > p_n_max:
+    #             p_n_max = i[0]
+    #     for i in range(p_n_max, 0):
+    #         food_list = []
+    #         for record in temp_list_foods:
+    #             if record(0) == i:
+    #                 food_list.append(Food.FoodLog(*record[1:]))
+    #         for order in temp_list_orders:
+    #             if order[0] == i:
+    #                 log_list.append(Food.OrderLog(food_list, order[1], order[2], order[3], order[4]))
             
-        return log_list
-        # returns a list that includes orderlog objects 
-        # that each of them has a foodlists attr which is a
-        # list that includes foodlog objects  
+    #     return log_list
+    #     # returns a list that includes orderlog objects 
+    #     # that each of them has a foodlists attr which is a
+    #     # list that includes foodlog objects  
     
+<<<<<<< HEAD:Restaurant/BackEnd/DataBase.py
     def update_user_log(self, email, order_log : Food.OrderLog):
         user_id = self.get_user_id(email)
         temp = self.cur.execute(f"""
@@ -316,8 +327,31 @@ class DB:
                     ?, ?, ?, ?, ?
                 )
             ''', (p_n_max, food.food_id, food.name, food.date, food.count, food.price))
+=======
+    # def update_user_log(self, email, order_log : Food.OrderLog):
+    #     user_id = self.get_user_id(email)
+    #     temp = self.cur.execute(f"""
+    #         SELECT * FROM {user_id}_order_log
+    #     """).fetchall()
+    #     p_n_max = 0
+    #     for record in temp:
+    #         if record[0] > p_n_max:
+    #             p_n_max = record[0]
+    #     self.cur.execute(f"""
+    #         INSERT INTO {user_id}_order_log VALUES
+    #         (
+    #             ?, ?, ?, ?, ?
+    #         )
+    #     """, (p_n_max + 1, order_log.total_price, order_log.off_code, order_log.off_value, order_log.date))
+    #     for food in order_log.foods_list:
+    #         self.cur.execute(f'''
+    #             INSERT INTO {user_id}_food_log VALUES(
+    #                 ?, ?, ?, ?, ?
+    #             )
+    #         ''', (p_n_max, food.food_id, food.date, food.count, food.price))
+>>>>>>> 5d483edc3532b5aa4181584c3bd60a732673fe0f:Restaurant/modules/DataBase.py
 
-        self.con.commit()
+    #     self.con.commit()
         
     def get_table_data(self, table):
         return self.cur.execute(f'''

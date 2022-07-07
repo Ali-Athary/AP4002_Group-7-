@@ -171,19 +171,20 @@ class Cart_panel(tkinter.Label):
 
 class Cart_top_bar(tkinter.Frame):
     def __init__(self, root, color_palette, final_price=1456789):
-        super().__init__(root, width=1000, height=60, bg=color_palette[3])
+        super().__init__(root, width=1010, height=60, bg=color_palette[3])
         self.grid_propagate(0)
 
         self.final_price = int(final_price)
 
         font1 = font.Font(family="Mj_Flow", size=20)
         font2 = font.Font(family="Dast Nevis", size=20)
+        font_english = font.Font(family="Roboto", size=20)
 
         # info frame
 
-        info_frame = tkinter.Frame(self, width=760, height=60, bg=color_palette[3])
+        info_frame = tkinter.Frame(self, width=390, height=60, bg=color_palette[3])
         info_frame.pack_propagate(0)
-        info_frame.place(x=1000,y=0, anchor=tkinter.NE)
+        info_frame.place(x=1010,y=0, anchor=tkinter.NE)
         
         # purchase information
 
@@ -206,19 +207,37 @@ class Cart_top_bar(tkinter.Frame):
 
         # button frame
 
-        search_frame = tkinter.Frame(self, width=200, height=60, bg="red")
-        search_frame.pack_propagate(0)
-        search_frame.place(x=0,y=0)
+        button_frame = tkinter.Frame(self, width=610, height=60, bg=color_palette[3])
+        button_frame.pack_propagate(0)
+        button_frame.place(x=0,y=0)
 
         # purchase complete button
 
         complete_img = Image.open(os.path.join(sys.path[0], "resources\icons\\cart_complete_purchase_button.png")).convert("RGBA")
         complete_image = ImageTk.PhotoImage(complete_img)
 
-        purchase_complete_button = tkinter.Button(search_frame, bg=color_palette[3], image=complete_image,
+        purchase_complete_button = tkinter.Button(button_frame, bg=color_palette[3], image=complete_image,
          highlightthickness=0, bd=0, activebackground=color_palette[3])
         purchase_complete_button.image = complete_image
-        purchase_complete_button.pack(fill="none", expand=True)
+        purchase_complete_button.pack(side=tkinter.LEFT)
+
+        #discount 
+        
+        tkinter.Label(button_frame, text="کد تخفیف", font=font1, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=0)
+        tkinter.Label(button_frame, text=":", font=font1, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=5)
+
+        discount_code_var = tkinter.StringVar()
+        tkinter.Entry(button_frame, textvariable=discount_code_var, font=font_english, bg=color_palette[4],
+         highlightthickness=0, bd=0, width=12).pack(side=tkinter.RIGHT)
+
+        complete_img = Image.open(os.path.join(sys.path[0], "resources\icons\\discount.png")).convert("RGBA")
+        complete_image = ImageTk.PhotoImage(complete_img)
+
+        purchase_complete_button = tkinter.Button(button_frame, bg=color_palette[3], image=complete_image,
+         highlightthickness=0, bd=0, activebackground=color_palette[3])
+        purchase_complete_button.image = complete_image
+        purchase_complete_button.pack(side=tkinter.RIGHT)
+
 
     def change_month(self):
         if(int(self.month_var.get()) == self.months[1]):
@@ -231,7 +250,7 @@ class Cart_top_bar(tkinter.Frame):
             self.day_var.set(self.days1[0])
 
     def show(self):
-        self.place(x=30, y=8)
+        self.place(x=20, y=8)
 
     def hide(self):
         self.place_forget()

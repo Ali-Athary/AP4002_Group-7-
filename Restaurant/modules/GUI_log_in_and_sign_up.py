@@ -1,12 +1,16 @@
 import tkinter
 from tkinter import font, ttk
 from PIL import ImageTk, Image  
-import os
-import sys
+import os, sys
+from modules import val_functions
 
 pages = []
 
-def main(root, color_palette):
+
+def main(root, color_palette, db):
+    global DB
+    DB = db
+
     #base frame
 
     base_frame = tkinter.Frame(root, bg=color_palette[4], width=1280, height=720)
@@ -26,7 +30,7 @@ def main(root, color_palette):
 
     user_log_in_frame = User_Log_in_page(main_frame, color_palette)
     pages.append(user_log_in_frame)
-    sign_in_frame = Sign_in_page(main_frame, color_palette)
+    sign_in_frame = Sign_up_page(main_frame, color_palette)
     pages.append(sign_in_frame)
     forgot_password_frame = Forgot_password_page(main_frame, color_palette)
     pages.append(forgot_password_frame)
@@ -274,7 +278,7 @@ class Manager_Log_in_page(Page):
     def display_error_message(self, text):
         self.error_label.configure(text=text)
 
-class Sign_in_page(Page):
+class Sign_up_page(Page):
     def __init__(self, root, color_palette):
         super().__init__(root, width=415, height=440, bg=color_palette[3])
         self.pack_propagate(0)
@@ -363,7 +367,7 @@ class Sign_in_page(Page):
 
         #message 
 
-        self.message_label = tkinter.Label(frame, text="\n", font=font2, bg=color_palette[3])
+        self.message_label = tkinter.Label(frame, text=" ", font=font2, bg=color_palette[3])
         self.message_label.pack()
 
         #button frame
@@ -372,10 +376,19 @@ class Sign_in_page(Page):
         button_frame.pack(pady=12)
         font_persian = font.Font(family="Mj_Flow", size=14)
 
-        #sign in button
+        #sign up button
+
+        def Sign_UP():
+            val = val_functions.create_account_val(self.first_nam_var.get(), self.last_nam_var.get(), self.id_var.get(),
+             self.phone_number_var.get(), self.email_var.get(), DB)
+            if(val == True):
+                pass
+                self.display_error_message(" ")
+            else:
+                self.display_error_message(val)
 
         tkinter.Button(button_frame, text="ثبت نام", font=font_persian, width=16, bg=color_palette[4],
-        activebackground=color_palette[3], highlightthickness=0, bd=0).grid(row=0, column=1, padx=10)
+        activebackground=color_palette[3], highlightthickness=0, bd=0, command=Sign_UP).grid(row=0, column=1, padx=10)
         
         #log in button 
 
