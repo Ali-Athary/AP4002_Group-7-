@@ -1,7 +1,7 @@
-from BackEnd import DataBase
+from modules import DataBase
 from PIL import Image
-from BackEnd import Food
-from BackEnd import val_functions
+from modules import Food
+from modules import val_functions
 
 class Manager:
     def __init__(self, personal_id, name, l_name, 
