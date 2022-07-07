@@ -13,9 +13,12 @@ class Order_item_UI_images():
         view_img = Image.open(os.path.join(sys.path[0], "resources\icons\\view_buuton.png")).convert("RGBA")
         self.view = ImageTk.PhotoImage(view_img)
 
-        minus_img = Image.open(os.path.join(sys.path[0], "resources\icons\\minus.png")).convert("RGBA")
-        self.minus = ImageTk.PhotoImage(minus_img.resize((40,40), Image.ANTIALIAS))
+        close_img = Image.open(os.path.join(sys.path[0], "resources\icons\\close.png")).convert("RGBA")
+        self.close = ImageTk.PhotoImage(close_img)
 
+        send_img = Image.open(os.path.join(sys.path[0], "resources\icons\\send.png")).convert("RGBA")
+        self.send = ImageTk.PhotoImage(send_img)
+        
         add_img = Image.open(os.path.join(sys.path[0], "resources\icons\\add.png")).convert("RGBA")
         self.add = ImageTk.PhotoImage(add_img)
 
@@ -24,6 +27,7 @@ class Orders_panel(tkinter.Label):
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\user_food_menu_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
+        self.item_ui_image = Order_item_UI_images()
 
         super().__init__(root, image=image, bg=color_palette[4], bd=0)
         self.image = image
@@ -42,14 +46,14 @@ class Orders_panel(tkinter.Label):
 
         self.oderes_frames = {}
 
-        unpaid_orders_frame = Order_Item_ScrollableFrame(self, color_palette)
+        unpaid_orders_frame = Order_Item_ScrollableFrame(self, color_palette, x=20, y=160)
         self.oderes_frames["unpaid_orders_frame"] = unpaid_orders_frame
         self.change_order_frame("unpaid_orders_frame")
 
-        unaccepted_orders_frame = Order_Item_ScrollableFrame(self, color_palette)
+        unaccepted_orders_frame = Order_Item_ScrollableFrame(self, color_palette, x=20, y=160)
         self.oderes_frames["unaccepted_orders_frame"] = unaccepted_orders_frame
         
-        completed_orders_frame = Order_Item_ScrollableFrame(self, color_palette)
+        completed_orders_frame = Order_Item_ScrollableFrame(self, color_palette, x=20, y=160)
         self.oderes_frames["completed_orders_frame"] = completed_orders_frame
 
         for i in range(20):
@@ -57,6 +61,8 @@ class Orders_panel(tkinter.Label):
             self.oderes_frames["unaccepted_orders_frame"].add_item("علی اطهری", "140،123", "1401/04/14", "1401/04/15")
             self.oderes_frames["completed_orders_frame"].add_item("علی اطهری", "140،123", "1401/04/14", "1401/04/15")
             pass
+
+        self.show_detail()
 
     def change_order_frame(self, frame_name):
         for frame in self.oderes_frames.values():
@@ -67,12 +73,161 @@ class Orders_panel(tkinter.Label):
         self.orders_header.hide()
         self.orders_header.show()
 
+    def show_detail(self):
+        self.detail_page = Orders_Detail_panel(self, self.color_palette)
+        self.detail_page.show()
+
+    def hide_detail(self):
+        self.detail_page.hide()
+        del self.detail_page
+
     def show(self):
         self.place(x=20, y=20)
 
     def hide(self):
         self.place_forget()
     
+class Orders_Detail_panel(tkinter.Label):
+    def __init__(self, root, color_palette):
+        self.color_palette = color_palette
+        img = Image.open(os.path.join(sys.path[0], "resources\panels\\simple_panel.png")).convert("RGBA")
+        image = ImageTk.PhotoImage(img)
+        self.item_ui_image = root.item_ui_image
+
+        super().__init__(root, image=image, bg=color_palette[4], bd=0)
+        self.image = image
+        self.grid_propagate(0)
+
+        #info frame
+
+        font1 = font.Font(family="Mj_Flow", size=20)
+        font2 = font.Font(family="Dast Nevis", size=20)
+        font1_english = font.Font(family="Roboto", size=22)
+
+        frame = tkinter.Frame(self, width=880, height=190, bg=color_palette[4], highlightbackground=color_palette[2],
+         highlightthickness=2)
+        frame.grid_propagate(0)
+        frame.place(x=160, y=40)
+
+        #order date 
+
+        f = tkinter.Frame(frame, width=435, height=60, bg=color_palette[4])
+        f.pack_propagate(0)
+        f.grid(row=0, column=1)
+
+        tkinter.Label(f, text="تاریخ سفارش", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text=":", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text="1404,04,15", font=font2, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+
+        #sent date
+        
+        f = tkinter.Frame(frame, width=435, height=60, bg=color_palette[4])
+        f.pack_propagate(0)
+        f.grid(row=0, column=0)
+
+        tkinter.Label(f, text="تاریخ ارسال", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text=":", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text="1404,04,15", font=font2, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+
+        #user name
+        
+        f = tkinter.Frame(frame, width=435, height=60, bg=color_palette[4])
+        f.pack_propagate(0)
+        f.grid(row=1, column=1)
+
+        tkinter.Label(f, text="نام کاربر", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text=":", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text="علی اطهری", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+
+        #final price
+
+        f = tkinter.Frame(frame, width=435, height=60, bg=color_palette[4])
+        f.pack_propagate(0)
+        f.grid(row=1, column=0)
+
+        tkinter.Label(f, text="قیمت نهایی", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text=":", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text="1,123,234", font=font2, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text="تومان", font=font2, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+
+        #discount code
+
+        f = tkinter.Frame(frame, width=435, height=60, bg=color_palette[4])
+        f.pack_propagate(0)
+        f.grid(row=2, column=1)
+
+        tkinter.Label(f, text="کد تخفیف", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text=":", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text="A2RSD55s", font=font1_english, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+
+        #discount amount
+
+        f = tkinter.Frame(frame, width=435, height=60, bg=color_palette[4])
+        f.pack_propagate(0)
+        f.grid(row=2, column=0)
+
+        tkinter.Label(f, text="مقدار تخفیف", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text=":", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text="23,234", font=font2, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text="تومان", font=font2, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+
+        #columns names
+
+        column_name_frame = tkinter.Frame(self, width=960, height=50, bg=self.color_palette[3])
+        column_name_frame.pack_propagate(0)
+        column_name_frame.place(x=50,y=240)
+
+        tkinter.Label(column_name_frame, text="نام محصول", font=font1, width=12,
+         bg=self.color_palette[3]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(column_name_frame, text="", font=font2, bg=self.color_palette[3]).pack(side=tkinter.RIGHT)
+        tkinter.Label(column_name_frame, text="قیمت (تومان)", font=font1, width=10,
+         bg=self.color_palette[3]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(column_name_frame, text="", font=font2, bg=self.color_palette[3]).pack(side=tkinter.RIGHT)
+        tkinter.Label(column_name_frame, text="تعداد", font=font1, width=8,
+         bg=self.color_palette[3]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(column_name_frame, text="", font=font2, bg=self.color_palette[3]).pack(side=tkinter.RIGHT)
+        tkinter.Label(column_name_frame, text="قیمت کل (تومان)", font=font1, width=12,
+         bg=self.color_palette[3]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(column_name_frame, text="", font=font2, bg=self.color_palette[3]).pack(side=tkinter.RIGHT)
+        tkinter.Label(column_name_frame, text="تاریخ", font=font1, width=10,
+         bg=self.color_palette[3]).pack(side=tkinter.RIGHT, padx=4)
+
+        #detail items 
+
+        self.item_frame = Detail_Item_ScrollableFrame(self, color_palette, width=960, height=360, x=50, y=300)
+        self.item_frame.show()
+        self.item_frame.add_item()
+        self.item_frame.add_item()
+        self.item_frame.add_item()
+        self.item_frame.add_item()
+        self.item_frame.add_item()
+        self.item_frame.add_item()
+
+        #button frame
+
+        button_frame = tkinter.Frame(self, bg=color_palette[3], bd=0, highlightthickness=0)
+        button_frame.place(x=28, y=46)
+
+        #close button
+
+        close_button = tkinter.Button(button_frame, image=self.item_ui_image.close, bg=color_palette[3],
+         activebackground=color_palette[3], bd=0, highlightthickness=0, command=root.hide_detail)
+        close_button.image = self.item_ui_image.close
+        close_button.grid(row=0, column=0)
+
+        #send button
+
+        send_button = tkinter.Button(button_frame, image=self.item_ui_image.send, bg=color_palette[3],
+         activebackground=color_palette[3], bd=0, highlightthickness=0, command=root.hide_detail)
+        send_button.image = self.item_ui_image.send
+        send_button.grid(row=1, column=0)
+
+    def show(self):
+        self.place(x=0, y=0)
+
+    def hide(self):
+        self.place_forget()
+
 class Orders_top_bar(tkinter.Frame):
     def __init__(self, root, color_palette):
         super().__init__(root, width=1000, height=60, bg=color_palette[3])
@@ -144,11 +299,13 @@ class Drop_Down_Menu(tkinter.OptionMenu):
         self["menu"].config(font=font_, fg=font_color, bg=color1, activebackground=color2, 
          activeforeground=font_color, relief=tkinter.FLAT, bd=0)
 
-class Order_Item_ScrollableFrame(ttk.Frame):
-    def __init__(self, container, color_palette, *args, **kwargs):
+class ScrollableFrame(ttk.Frame):
+    def __init__(self, container, color_palette, *args, width=990, height=520, x=0, y=0, **kwargs):
         super().__init__(container, *args, **kwargs)
-        self.item_ui_image = Order_item_UI_images()
+        self.item_ui_image = container.item_ui_image
         self.color_palette = color_palette
+        self.x = x
+        self.y = y
         
         style = ttk.Style()
         style.theme_use('clam')
@@ -157,7 +314,7 @@ class Order_Item_ScrollableFrame(ttk.Frame):
                 troughcolor=color_palette[4], bordercolor=color_palette[3], arrowcolor=color_palette[1],
                 activerelief=tkinter.FLAT, relief=tkinter.FLAT)
 
-        canvas = tkinter.Canvas(self, height=520, width=990, bg=color_palette[3], bd=0, highlightthickness=0)
+        canvas = tkinter.Canvas(self, height=height, width=width, bg=color_palette[3], bd=0, highlightthickness=0)
         scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
 
         self.scrollable_frame = tkinter.Frame(canvas, bg=color_palette[3])
@@ -175,7 +332,14 @@ class Order_Item_ScrollableFrame(ttk.Frame):
 
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+        
+    def show(self):
+        self.place(x=self.x, y=self.y)
+    
+    def hide(self):
+        self.place_forget()
 
+class Order_Item_ScrollableFrame(ScrollableFrame):
     def add_item(self, user_name, order_price, order_date, sent_date):
         frame = tkinter.Frame(self.scrollable_frame, width=980, height=90, bg=self.color_palette[1])
         frame.pack_propagate(0)
@@ -219,10 +383,29 @@ class Order_Item_ScrollableFrame(ttk.Frame):
          activebackground=self.color_palette[3], highlightthickness=0, bd=0)
         view_button.image = self.item_ui_image.view
         view_button.pack(side=tkinter.RIGHT, padx=26)
-    def show(self):
-        self.place(x=20, y=160)
-    
-    def hide(self):
-        self.place_forget()
 
-   
+class Detail_Item_ScrollableFrame(ScrollableFrame):
+    def add_item(self):
+        font1 = font.Font(family="Mj_Flow", size=20)
+        font2 = font.Font(family="Dast Nevis", size=20)
+        font1_english = font.Font(family="Roboto", size=22)
+
+        item_frame = tkinter.Frame(self.scrollable_frame, width=960, height=60, bg=self.color_palette[4],
+         highlightbackground=self.color_palette[2], highlightthickness=2)
+        item_frame.pack_propagate(0)
+        item_frame.pack(pady=6)
+
+        tkinter.Label(item_frame, text="سیب زمینی سرخ کرده", font=font2, width=12,
+            bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+        tkinter.Label(item_frame, text="62،324", font=font2, width=10,
+            bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+        tkinter.Label(item_frame, text="2", font=font2, width=8,
+            bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+        tkinter.Label(item_frame, text="123،456", font=font2, width=12,
+            bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+        tkinter.Label(item_frame, text="1401/4/4", font=font2, width=10,
+            bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)

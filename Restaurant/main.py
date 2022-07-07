@@ -14,8 +14,8 @@ class App(tkinter.Tk):
         db = DataBase.DB(os.path.join(sys.path[0], "database/database.db"))
 
         #GUI_log_in_and_sign_up.main(self, color_palette, db)
-        #GUI_user.main(self, color_palette)
-        GUI_manager.main(self, color_palette)
+        GUI_user.main(self, color_palette)
+        #GUI_manager.main(self, color_palette)
 
         self.mainloop()        
 
