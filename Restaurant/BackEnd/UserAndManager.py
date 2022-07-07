@@ -3,11 +3,18 @@ from PIL import Image
 from BackEnd import Food
 from BackEnd import val_functions
 
-class Manager():
-    def __init__(self):
-        ...
+class Manager:
+    def __init__(self, personal_id, name, l_name, 
+    id, email, phone, picture):
+        self.personal_id = personal_id
+        self.name = name
+        self.l_name = l_name
+        self.id = id
+        self.email = email
+        self.phone = phone 
+        self.picture = picture
 
-class User():
+class User:
     def __init__(self, name, l_name, id, email, phone, picture : Image.Image, user_id, db : DataBase.DB):
         self.name = name 
         self.l_name = l_name
@@ -102,7 +109,18 @@ class User():
             else: return 'رمز عبور نادرست است'
         else: return var
 
-    def change_profile_pic(self, picture):
+    def change_profile_pic(self, picture : Image.Image):
         self.picture = picture
         ...
+    def submit_opinion(self, text : str):
+        self.db.add_opinion(text)
+
+    def get_last_order_dict(self):
+        last_order_dict = {}
+        for foodlog in self.last_order:
+            if foodlog.date in last_order_dict.keys():
+                last_order_dict[foodlog.date].append(foodlog)
+            else:
+                last_order_dict[foodlog.date] = [foodlog]
+        return last_order_dict
     

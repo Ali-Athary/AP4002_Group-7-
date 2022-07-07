@@ -88,6 +88,14 @@ class DB:
                 off_value INTEGER
             )
             ''')
+        
+            # opinion
+            self.cur.execute('''
+            CREATE TABLE opinion(
+                text TEXT,
+                viewed INTEGER
+            )
+            ''')
         self.con.commit()
 
     def create_account(self, name, l_name, 
@@ -162,7 +170,7 @@ class DB:
         else:
             return 1 # password did not change
     
-    def reset_password(self, email):
+    def reset_password(self, email, id, phone):
         user_id = self.get_user_id(email)
         # generate new password
         # email it
@@ -188,7 +196,10 @@ class DB:
         SELECT pasword FROM admin WHERE personal_id = ?
         ''', (personal_id, )).fetchone()
         if user_pass != None and user_pass[0] == password:
-            return UserAndManager.Manager(personal_id)
+            x = self.cur.execute('''
+                SELECT * FROM admin WHERE personal_id = ?
+                ''', (personal_id, )).fetchone()
+            return UserAndManager.Manager(personal_id, *x[:6])
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
     
@@ -345,11 +356,13 @@ class DB:
         self.cur.execute('''
         INSERT INTO discount VALUES(?, ?)
         ''', (code, value))
+
     def get_discount_value(self, code):
         return self.cur.execute('''
         SELECT off_value FROM discount WHERE 
         offcode = ?
         ''', (code, )).fetchone()[0]
+
     def use_discount(self, code) -> int:
         value = self.cur.execute('''
         SELECT off_value FROM discount WHERE 
@@ -358,4 +371,29 @@ class DB:
         self.cur.execute('''
         DELETE FROM discount WHERE offcode = ?
         ''', (code, ))
+        self.con.commit()
         return value
+
+    def add_opinion(self, text):
+        self.cur.execute(
+            '''
+            INSERT INTO opinion VALUES(
+                ?, ?
+            )
+            ''', (text, 0)
+        )
+        self.con.commit()
+
+    def view_opinion(self):
+        table = self.get_table_data('opinion')
+        self.cur.execute(
+            '''
+            UPDATE SET viewed = 1
+            '''
+        )
+        self.con.commit()
+        opinions = []
+        for _ in table:
+            if _[1] == 0:
+                opinions.append(_[0])
+        return opinions
