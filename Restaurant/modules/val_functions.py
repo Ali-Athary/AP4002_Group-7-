@@ -5,7 +5,7 @@ currect form, otherwise they return the
 error message in a string form
 '''
 
-import DataBase
+from modules import DataBase
 
 def name_val(name): 
     # validates name
@@ -44,7 +44,7 @@ def phone_number_val(phone : str):
     # validates phone number
     if not ((phone[:5] == '+9809' and len(phone[5:]) == 9 and phone[5:].isdigit()) 
             or (phone[:5] == '00989' and len(phone[5:]) == 9 and phone[5:].isdigit()) 
-            or (phone[0] == '9' and len(phone) == 10 and phone.isdigit()) 
+            or (phone[:1] == '9' and len(phone) == 10 and phone.isdigit()) 
             or (phone[:2] == '09' and len(phone) == 11 and phone.isdigit())):
                 return 'شماره تلفن معتبر نیست'
     else: return True

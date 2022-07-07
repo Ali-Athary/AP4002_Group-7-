@@ -112,7 +112,7 @@ class History_panel(tkinter.Label):
 
         column_name_frame = tkinter.Frame(frame, width=960, height=50, bg=self.color_palette[3])
         column_name_frame.pack_propagate(0)
-        column_name_frame.pack(pady=2)
+        column_name_frame.pack()
 
         tkinter.Label(column_name_frame, text="نام محصول", font=font1, width=12,
          bg=self.color_palette[3]).pack(side=tkinter.RIGHT, padx=4)
