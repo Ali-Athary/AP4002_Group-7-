@@ -29,7 +29,7 @@ class Food:
                 food_id = food.food_id
         food = Food(food_id + 1, name, price, picture, discription1, discription2, 0)
         cls.food_list.insert(0, food)
-        db.create_food(food_id + 1, name, price, picture, discription1, discription2, 0)
+        db.create_food(food_id + 1, name, price, DataBase.DB.image_to_bin(picture), discription1, discription2, 0)
 
     def update_food(self, changes, db):
         'changes the amount of food'

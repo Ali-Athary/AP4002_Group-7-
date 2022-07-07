@@ -5,29 +5,98 @@ from modules import val_functions
 
 class Manager:
     def __init__(self, personal_id, name, l_name, 
-    id, email, phone, picture):
+    id, email, phone, picture : bytes, db):
         self.personal_id = personal_id
         self.name = name
         self.l_name = l_name
         self.id = id
         self.email = email
         self.phone = phone 
+        self.picture = DataBase.DB.bin_to_image(picture)
+        if isinstance(db, DataBase.DB):
+            self.db = db
+        Food.Food.load_foods(self.db)
+
+        self.get_owner_data()
+        
+    def change_admin_info(self, name, l_name, phone, email):
+        var = val_functions.change_acc_info_val(name, l_name, self.id,
+            phone, email, self.db, self.email)
+        if var == True:
+            self.db.change_manager_info(self.personal_id, name,
+                l_name, phone, email)
+        else:
+            return var
+        
+    def change_password(self, password, new_pass, confirm_pass):
+        var = val_functions.password_validation(new_pass, confirm_pass)
+        if var == True :
+            if self.db.change_manager_password(self.personal_id, password, new_pass) == 0:
+                return 0
+            else:
+                return 'رمزعبور نادرست است'
+        else: return var
+    
+    def change_profile_pic(self, picture : Image.Image):
         self.picture = picture
+        self.db.update_manager_profile(self.personal_id, picture)
+
+    def change_menu_pic(self, pic):
+        self.restaurant_menu = pic
+        self.db.update_menu(pic)
+    
+    def change_owner_info(self, new_name, new_l_name,
+            new_district, new_addrss):
+        v1 = val_functions.name_val(new_name)
+        v2 = val_functions.l_name_val(new_l_name)
+        if v1 == True:
+            if v2 == True:
+                self.db.update_restaurant_data(new_name, new_l_name,
+                        new_district, new_addrss)
+            else:
+                return v2
+        else:
+            return v1
+
+    def get_owner_data(self):
+        row = self.db.get_table_data('restaurant_data')[0]
+        self.manager_name = row[0]
+        self.manager_last_name = row[1]
+        self.restaurant_district = row[2]
+        self.restaurant_address = row[3]
+        self.restaurant_menu = row[4]
+
+    def create_food(self, name, price, discription1, discription2, picture : Image.Image):
+        Food.Food.add_food(name, int(price), picture,
+            discription1, discription2, self.db)
+    
+    def change_food_amount(self, food : Food.Food, count):
+        food.update_food(count, self.db)
+
+    def delete_food(self, food : Food.Food):
+        ...
+    
+    def view_comments(self):
+        ...
+    
 
 class User:
-    def __init__(self, name, l_name, id, email, phone, picture : Image.Image, user_id, db):
+    def __init__(self, name, l_name, id, email, phone, picture : bytes, user_id, db):
         self.name = name 
         self.l_name = l_name
         self.id = id
         self.email = email
         self.phone = phone
-        self.picture = picture
+        self.picture = DataBase.DB.bin_to_image(picture)
         self.user_id = user_id
         self.db = db
+
         Food.Food.load_foods(self.db)
+
+        self.off_code = ''
         self.last_order = self.get_last_order()
         self.order_log = self.get_order_log()
-        self.total_price = self.get_total_price()
+
     def add_food_to_order_list(self, food : Food.Food, count, date):
         'select food from the menu'
         if food.amount - count < 0:
@@ -36,7 +105,8 @@ class User:
         self.last_order.append(Food.FoodLog(food.food_id, food.name, date , count, food.price))
         self.total_price = self.get_total_price()
         return 0
-    def confirm_order(self, date, off_code):
+
+    def confirm_order(self, date):
         'confirm the order'
         i = []
         for index, foodlog in enumerate(self.last_order):
@@ -48,10 +118,8 @@ class User:
         for index, food in enumerate(self.last_order):
             if index not in i:
                 temp_food.append(food)
-        total_price = 0
-        for food in temp_food:
-            total_price += food.count * food.price
-        order_log = Food.OrderLog(temp_food, total_price, date, off_code, self.db.discount_value(off_code))
+                
+        order_log = Food.OrderLog(temp_food, self.get_total_price(), date, self.off_code, self.db.use_discount(self.off_code))
         self.db.update_user_log(self.email, order_log)
         self.order_log = self.db.get_user_log()
         self.last_order = []
@@ -90,6 +158,15 @@ class User:
             x += _.count * _.price
         return x
 
+    def purchasable_price(self):
+        v =  self.get_total_price() - self.db.get_discount_value(self.off_code)
+        if v < 0:
+            return 0
+        return v
+    
+    def apply_discount(self, code):
+        self.off_code = code
+
     def get_order_log(self):
         return self.db.get_user_log(self.email)
 
@@ -101,6 +178,7 @@ class User:
             phone, email, self.email)
         else:
             return var
+
     def change_password(self, password, new_password, confirm_pass):
         var = val_functions.password_validation(new_password, confirm_pass)
         if var == True:
@@ -111,7 +189,8 @@ class User:
 
     def change_profile_pic(self, picture : Image.Image):
         self.picture = picture
-        ...
+        self.db.update_user_profile(self.user_id, picture)
+
     def submit_opinion(self, text : str):
         self.db.add_opinion(text)
 

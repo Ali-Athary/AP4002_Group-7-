@@ -81,6 +81,25 @@ class DB:
             ''')
 
             # restaurant data
+            self.cur.execute(
+                '''
+                CREATE TABLE restaurant_data
+                (
+                    owner_name TEXT,
+                    owner_last_name TEXT,
+                    district TEXT,
+                    restaurant_address TEXT,
+                    menu_pic BLOB
+                )
+                '''
+            )
+            self.cur.execute(
+                '''
+                INSERT INTO restaurant_data VALUES (
+                    ?, ?, ?, ?, ?
+                )
+                '''
+            ,('نام', 'نام خانوادگی', 'hakimie', 'address', None))
 
             self.cur.execute('''
             CREATE TABLE discount(
@@ -213,6 +232,23 @@ class DB:
             WHERE personal_id = ?
         ''', (name, l_name, phone, email, personal_id))
 
+    def change_manager_password(self, personal_id, password, new_pass):
+        user_pass = self.cur.execute(
+            '''
+            SELECT password FROM admin WHERE personal_id = ?
+            ''', (personal_id, )
+        )[0]
+        if user_pass == password:
+            self.cur.execute(
+                '''
+                UPDATE admin SET password = ? WHERE personal_id = ?
+                ''', (new_pass, personal_id)
+            )
+            return 0 # successfull
+        else:
+            return 1 # not successfull
+        
+
     def create_food(self, food_id, name, price, picture, discription1, discription2, count):
         discription = self.discription_list_to_str(discription1, discription2)
         picture = self.image_to_array(picture)
@@ -328,6 +364,49 @@ class DB:
         return self.cur.execute('''
         SELECT user_id FROM user WHERE email = ?
         ''', (email, )).fetchone()[0]
+    
+    def update_user_profile(self, user_id, picture : Image.Image):
+        self.cur.execute(
+            '''
+            UPDATE user
+            SET picture = ?
+            WHERE user_id = ?
+            ''', (self.image_to_bin(picture), user_id)
+        )
+        self.con.commit()
+    
+    def update_manager_profile(self, personal_id, picture : Image.Image):
+        self.cur.execute(
+            '''
+            UPDATE admin
+            SET picture = ?
+            WHERE personal_id = ?
+            ''', (self.image_to_bin(picture), personal_id)
+        )
+        self.con.commit()
+
+    def update_menu(self, menu : Image.Image):
+        self.cur.execute(
+            '''
+            UPDATE restaurant_data
+            SET menu_pic = ?
+            WHERE rowid = ?
+            ''', (self.image_to_bin(menu), 0)
+        )
+        self.con.commit()
+    
+    def update_restaurant_data(self, name, l_name,
+            district, address):
+        self.cur.execute(
+            '''
+            UPDATE restaurant_data
+            SET owner_name = ?,
+                owner_last_name = ?,
+                district = ?,
+                restaurant_address = ?
+            ''', (name, l_name, district, address)
+        )
+        self.con.commit()
 
     def close(self):
         self.con.close()
@@ -339,11 +418,27 @@ class DB:
     def discription_str_to_list(discription_str : str):
         return discription_str.split('|')
     @staticmethod
-    def image_to_array(image: Image.Image()):
-        ...
+    def image_to_bin(image: Image.Image):
+        try:
+            image.save('database\\temp.jpg')
+            with open('database\\temp.jpg', 'rb') as file:
+                bin_image = file.read()
+            os.system('del database\\temp.jpg')
+            os.system('rm database\\temp.jpg')
+            return bin_image
+        except TypeError:
+            return None
     @staticmethod
-    def array_to_image(array):
-        ...
+    def bin_to_image(bin : bytes):
+        try:
+            with open('database\\temp.jpg', 'wb') as file:
+                file.write(bin)
+            image = Image.open('database\\temp.jpg')
+            os.system('del database\\temp.jpg')
+            os.system('rm database\\temp.jpg')
+            return image
+        except TypeError:
+            return None
     
     def update_last_order(self, user_id, food_data):
         self.cur.execute('''
@@ -358,21 +453,25 @@ class DB:
         ''', (code, value))
 
     def get_discount_value(self, code):
-        return self.cur.execute('''
+        value =  self.cur.execute('''
         SELECT off_value FROM discount WHERE 
         offcode = ?
-        ''', (code, )).fetchone()[0]
+        ''', (code, )).fetchone()
+        if value != None:
+            return value[0]
 
     def use_discount(self, code) -> int:
         value = self.cur.execute('''
         SELECT off_value FROM discount WHERE 
         offcode = ?
-        ''', (code, )).fetchone()[0]
+        ''', (code, )).fetchone()
+        if value == None:
+            return 0
         self.cur.execute('''
         DELETE FROM discount WHERE offcode = ?
         ''', (code, ))
         self.con.commit()
-        return value
+        return value[0]
 
     def add_opinion(self, text):
         self.cur.execute(
