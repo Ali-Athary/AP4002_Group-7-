@@ -2,8 +2,8 @@ import sqlite3
 import os
 from PIL import Image
 import time
-import UserAndManager
-import Food
+from modules import UserAndManager
+from modules import Food
 
 class DB:
     def __init__(self, path):
@@ -23,7 +23,7 @@ class DB:
                 id TEXT, 
                 email TEXT PRIMARY KEY,
                 phone TEXT,
-                picture BLOB
+                picture BLOB,
                 user_id TEXT
             )
             ''')
@@ -36,7 +36,7 @@ class DB:
                 name TEXT, 
                 price INTEGER, 
                 picture BLOB, 
-                discription TEXT
+                discription TEXT,
                 count INTEGER
             ) 
             ''')

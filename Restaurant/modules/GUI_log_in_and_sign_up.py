@@ -1,6 +1,6 @@
 import tkinter
 from tkinter import font, ttk
-from PIL import ImageTk, Image  
+from PIL import ImageTk, Image
 import os, sys
 from modules import val_functions
 
@@ -380,12 +380,15 @@ class Sign_up_page(Page):
 
         def Sign_UP():
             val = val_functions.create_account_val(self.first_nam_var.get(), self.last_nam_var.get(), self.id_var.get(),
-             self.phone_number_var.get(), self.email_var.get(), DB)
+             self.phone_number_var.get(), self.email_var.get(), self.password_var.get(), self.password_confirm_var.get(), DB)
             if(val == True):
-                pass
                 self.display_error_message(" ")
+                self.display_confirm_message("ثبت نام با موفقیت انجام شد")
+                DB.create_account(self.first_nam_var.get(), self.last_nam_var.get(), self.id_var.get(),
+                 self.phone_number_var.get(), self.email_var.get(), self.password_var.get())
             else:
                 self.display_error_message(val)
+            print(DB.get_table_data("user"))
 
         tkinter.Button(button_frame, text="ثبت نام", font=font_persian, width=16, bg=color_palette[4],
         activebackground=color_palette[3], highlightthickness=0, bd=0, command=Sign_UP).grid(row=0, column=1, padx=10)

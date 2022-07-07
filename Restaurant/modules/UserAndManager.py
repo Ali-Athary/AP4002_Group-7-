@@ -15,7 +15,7 @@ class Manager:
         self.picture = picture
 
 class User:
-    def __init__(self, name, l_name, id, email, phone, picture : Image.Image, user_id, db : DataBase.DB):
+    def __init__(self, name, l_name, id, email, phone, picture : Image.Image, user_id, db):
         self.name = name 
         self.l_name = l_name
         self.id = id
