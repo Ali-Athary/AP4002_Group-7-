@@ -1,9 +1,9 @@
 import sqlite3
 import os
-from PIL import ImageTk, Image
+from PIL import Image
 import time
-#import UserAndManager
-#import Food
+import UserAndManager
+import Food
 
 class DB:
     def __init__(self, path):
@@ -32,7 +32,7 @@ class DB:
             self.cur.execute('''
             CREATE TABLE food
             (
-                food_id TEXT
+                food_id INTEGER
                 name TEXT, 
                 price INTEGER, 
                 picture BLOB, 
@@ -48,7 +48,7 @@ class DB:
                 user_id TEXT,
                 food_data TEXT
             )
-            ''')
+            ''') # food_data : |food_id$name$date$count|
 
             # users password table
             self.cur.execute('''
@@ -77,6 +77,23 @@ class DB:
             self.cur.execute('''
             INSERT INTO admin(name, last_name, email, personal_id, password) VALUES(
                 "name", "last_name", "email@mail.com", "p12345678", "password"
+            )
+            ''')
+
+            # restaurant data
+
+            self.cur.execute('''
+            CREATE TABLE discount(
+                offcode TEXT,
+                off_value INTEGER
+            )
+            ''')
+        
+            # opinion
+            self.cur.execute('''
+            CREATE TABLE opinion(
+                text TEXT,
+                viewed INTEGER
             )
             ''')
         self.con.commit()
@@ -114,7 +131,9 @@ class DB:
             date TEXT
         )
         ''')
-
+        self.cur.execute('''
+        INSERT INTO last_order VALUES (?, ?)
+        ''', (user_id, ''))
         # add a record to password table
         self.cur.execute('''
         INSERT INTO password VALUES (?, ?)
@@ -151,7 +170,7 @@ class DB:
         else:
             return 1 # password did not change
     
-    def reset_password(self, email):
+    def reset_password(self, email, id, phone):
         user_id = self.get_user_id(email)
         # generate new password
         # email it
@@ -159,12 +178,16 @@ class DB:
         self.con.commit() 
 
     def get_user_obj(self, email, password):
+        user_id = self.get_user_id(email)
         user_pass = self.cur.execute('''
-        SELECT pasword FROM user WHERE email = ?
-        ''', (email, )).fetchone()
+        SELECT password FROM password WHERE user_id = ?
+        ''', (user_id, )).fetchone()
         if user_pass != None and user_pass[0] == hash(password):
-            user_id = self.get_user_id(email)
-            #return UserAndManager.User(user_id)
+            data = self.cur.execute('''
+            SELECT * from user WHERE user_id = ?
+            ''', (user_id, )).fetchone()
+            return UserAndManager.User(data[0], data[1], data[2], 
+            data[3], data[4], data[5], user_id, self)
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
 
@@ -173,70 +196,128 @@ class DB:
         SELECT pasword FROM admin WHERE personal_id = ?
         ''', (personal_id, )).fetchone()
         if user_pass != None and user_pass[0] == password:
-            pass
-            #return UserAndManager.Manager(personal_id)
+            x = self.cur.execute('''
+                SELECT * FROM admin WHERE personal_id = ?
+                ''', (personal_id, )).fetchone()
+            return UserAndManager.Manager(personal_id, *x[:6])
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
     
-    def create_food(self):
+    def change_manager_info(self, personal_id, name, l_name, phone, email):
+        self.cur.execute('''
+            UPDATE admin
+            SET name = ?,
+                l_name = ?,
+                phone = ?,
+                email = ?
+            WHERE personal_id = ?
+        ''', (name, l_name, phone, email, personal_id))
+
+    def create_food(self, food_id, name, price, picture, discription1, discription2, count):
+        discription = self.discription_list_to_str(discription1, discription2)
+        picture = self.image_to_array(picture)
+        self.cur.execute('''
+            INSERT INTO food VALUES(
+                ?, ?, ?, ?, ?, ?
+            )
+        ''', (food_id, name, price, picture, discription, count))
         self.con.commit()
 
-    def change_food_amount(self, food_id, changes):
-        self.con.commit()
+    def change_food_amount(self, food_id, changes : int):
+        '''changes food amount in the data-base
+            returns 0 if it was successful
+            otherwise returns 1
+        '''
+        if changes > 0:
+            # add
+            amount = self.cur.execute('''
+                SELECT count FROM food WHERE food_id = ?
+            ''', (food_id, )).fetchone()[0]
+            self.cur.execute('''
+                UPDATE food
+                SET count = ?
+                WHERE food_id = ?
+            ''', (amount + changes, food_id))
+            self.con.commit()
+            return 0
+        elif changes < 0:
+            # buy food
+            amount = self.cur.execute('''
+                SELECT count FROM food WHERE food_id = ?
+            ''', (food_id, )).fetchone()[0]
+            if amount + changes < 0:
+                self.con.commit()
+                return 1
+            else:
+                self.cur.execute('''
+                    UPDATE food
+                    SET count = ?
+                    WHERE food_id = ?
+                ''', (amount + changes, food_id))
+                self.con.commit()
+                return 0
 
-    def get_foods_obj(self, food_id):
-        return []
+    def get_foods_obj(self):
+        food_list = []
+        table = self.get_table_data('food')
+        for _ in table:
+            food_list.append(Food.Food(_[0], _[1], _[2], 
+            self.array_to_image(_[3]), 
+            self.discription_str_to_list(_[4])[0], 
+            self.discription_str_to_list(_[4])[1],
+            _[5]))
+        return food_list
     
-    # def get_user_log(self, email):
-    #     user_id = self.get_user_id(email)
-    #     log_list = []
-    #     temp_list_foods = self.cur.execute(f"""
-    #         SELECT * FROM {user_id}_food_log
-    #     """).fetchall()
-    #     temp_list_orders = self.cur.execute(f"""
-    #         SELECT * FROM {user_id}_order_log
-    #     """).fetchall()
-    #     p_n_max = 0
-    #     for i in temp_list_foods:
-    #         if i[0] > p_n_max:
-    #             p_n_max = i[0]
-    #     for i in range(p_n_max, 0):
-    #         food_list = []
-    #         for record in temp_list_foods:
-    #             if record(0) == i:
-    #                 food_list.append(Food.FoodLog(*record[1:]))
-    #         for order in temp_list_orders:
-    #             if order[0] == i:
-    #                 log_list.append(Food.OrderLog(food_list, order[1], order[2], order[3], order[4]))
+    def get_user_log(self, email):
+        user_id = self.get_user_id(email)
+        log_list = []
+        temp_list_foods = self.cur.execute(f"""
+            SELECT * FROM {user_id}_food_log
+        """).fetchall()
+        temp_list_orders = self.cur.execute(f"""
+            SELECT * FROM {user_id}_order_log
+        """).fetchall()
+        p_n_max = 0
+        for i in temp_list_foods:
+            if i[0] > p_n_max:
+                p_n_max = i[0]
+        for i in range(p_n_max, 0):
+            food_list = []
+            for record in temp_list_foods:
+                if record(0) == i:
+                    food_list.append(Food.FoodLog(*record[1:]))
+            for order in temp_list_orders:
+                if order[0] == i:
+                    log_list.append(Food.OrderLog(food_list, order[1], order[2], order[3], order[4]))
             
-    #     return log_list
-    #     # returns a list that includes orderlog objects 
-    #     # that each of them has a foodlists attr which is a
-    #     # list that includes foodlog objects  
+        return log_list
+        # returns a list that includes orderlog objects 
+        # that each of them has a foodlists attr which is a
+        # list that includes foodlog objects  
     
-    # def update_user_log(self, email, order_log : Food.OrderLog):
-    #     user_id = self.get_user_id(email)
-    #     temp = self.cur.execute(f"""
-    #         SELECT * FROM {user_id}_order_log
-    #     """).fetchall()
-    #     p_n_max = 0
-    #     for record in temp:
-    #         if record[0] > p_n_max:
-    #             p_n_max = record[0]
-    #     self.cur.execute(f"""
-    #         INSERT INTO {user_id}_order_log VALUES
-    #         (
-    #             ?, ?, ?, ?, ?
-    #         )
-    #     """, (p_n_max + 1, order_log.total_price, order_log.off_code, order_log.off_value, order_log.date))
-    #     for food in order_log.foods_list:
-    #         self.cur.execute(f'''
-    #             INSERT INTO {user_id}_food_log VALUES(
-    #                 ?, ?, ?, ?, ?
-    #             )
-    #         ''', (p_n_max, food.food_id, food.date, food.count, food.price))
+    def update_user_log(self, email, order_log : Food.OrderLog):
+        user_id = self.get_user_id(email)
+        temp = self.cur.execute(f"""
+            SELECT * FROM {user_id}_order_log
+        """).fetchall()
+        p_n_max = 0
+        for record in temp:
+            if record[0] > p_n_max:
+                p_n_max = record[0]
+        self.cur.execute(f"""
+            INSERT INTO {user_id}_order_log VALUES
+            (
+                ?, ?, ?, ?, ?
+            )
+        """, (p_n_max + 1, order_log.total_price, order_log.off_code, order_log.off_value, order_log.date))
+        for food in order_log.food_log_list:
+            self.cur.execute(f'''
+                INSERT INTO {user_id}_food_log VALUES(
+                    ?, ?, ?, ?, ?
+                )
+            ''', (p_n_max, food.food_id, food.name, food.date, food.count, food.price))
 
-    #     self.con.commit()
+        self.con.commit()
         
     def get_table_data(self, table):
         return self.cur.execute(f'''
@@ -250,3 +331,69 @@ class DB:
 
     def close(self):
         self.con.close()
+    
+    @staticmethod
+    def discription_list_to_str(discription1, discription2):
+        return discription1 + '|' + discription2
+    @staticmethod
+    def discription_str_to_list(discription_str : str):
+        return discription_str.split('|')
+    @staticmethod
+    def image_to_array(image: Image.Image()):
+        ...
+    @staticmethod
+    def array_to_image(array):
+        ...
+    
+    def update_last_order(self, user_id, food_data):
+        self.cur.execute('''
+        UPDATE last_order
+        SET food_data = ?
+        WHERE user_id = ?
+        ''', (food_data, user_id))
+    
+    def add_discount_code(self, code, value):
+        self.cur.execute('''
+        INSERT INTO discount VALUES(?, ?)
+        ''', (code, value))
+
+    def get_discount_value(self, code):
+        return self.cur.execute('''
+        SELECT off_value FROM discount WHERE 
+        offcode = ?
+        ''', (code, )).fetchone()[0]
+
+    def use_discount(self, code) -> int:
+        value = self.cur.execute('''
+        SELECT off_value FROM discount WHERE 
+        offcode = ?
+        ''', (code, )).fetchone()[0]
+        self.cur.execute('''
+        DELETE FROM discount WHERE offcode = ?
+        ''', (code, ))
+        self.con.commit()
+        return value
+
+    def add_opinion(self, text):
+        self.cur.execute(
+            '''
+            INSERT INTO opinion VALUES(
+                ?, ?
+            )
+            ''', (text, 0)
+        )
+        self.con.commit()
+
+    def view_opinion(self):
+        table = self.get_table_data('opinion')
+        self.cur.execute(
+            '''
+            UPDATE SET viewed = 1
+            '''
+        )
+        self.con.commit()
+        opinions = []
+        for _ in table:
+            if _[1] == 0:
+                opinions.append(_[0])
+        return opinions
