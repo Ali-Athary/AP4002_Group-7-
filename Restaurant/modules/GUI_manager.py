@@ -25,7 +25,6 @@ def change_page(name):
 
     active_page_name = name
 
-
 def main(root, color_palette, _admin:UserAndManager.Manager):
     global active_page_name, pages
     global admin
@@ -89,10 +88,9 @@ class Profile_info():
         self.name = profile_name
         self.image = profile_image
 
-
 class Right_menu(tkinter.Frame):
     def __init__(self, root, color_palette):
-        super().__init__(root, width=160, height=640, bg=color_palette[4])
+        super().__init__(root, width=160, height=660, bg=color_palette[4])
         self.pack_propagate(0)
 
         font1 = font.Font(family="Mj_Flow", size=18)
@@ -171,7 +169,7 @@ class Right_menu(tkinter.Frame):
         self.profile_image_label.image = profile_image
 
     def show(self):
-        self.place(x=1090, y=40)
+        self.place(x=1090, y=30)
 
     def hide(self):
         self.place_forget()
