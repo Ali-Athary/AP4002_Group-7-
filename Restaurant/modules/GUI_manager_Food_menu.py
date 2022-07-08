@@ -35,11 +35,7 @@ class Food_menu_panel(tkinter.Label):
         self.food_frame = Food_Item_ScrollableFrame(self, color_palette)
         self.food_frame.place(x=20, y=100)
 
-        self.item_ui_image = Item_UI_images()
-
-        food_list = Food.Food.food_list
-        for food in food_list:
-            self.add_food_to_list(food)
+        self.update_menu()
 
         #add food panel
 
@@ -66,12 +62,16 @@ class Food_menu_panel(tkinter.Label):
 
         #button frame
 
+        def delete():
+            admin.delete_food(food)
+            frame.pack_forget()
+
         price_frame = tkinter.Frame(frame, width=160, height=140, bg=self.color_palette[3])
         price_frame.pack_propagate(0)
         price_frame.place(x=180, y=30, anchor=tkinter.NE)
 
         delete_button = tkinter.Button(price_frame, image=self.item_ui_image.delete, bg=self.color_palette[3],
-         activebackground=self.color_palette[3], highlightthickness=0, bd=0)
+         activebackground=self.color_palette[3], highlightthickness=0, bd=0, command=delete)
         delete_button.image = self.item_ui_image.delete
         delete_button.pack(pady=12)
 
@@ -116,6 +116,13 @@ class Food_menu_panel(tkinter.Label):
         image_label = tkinter.Label(frame, image=food_image_with_mask, highlightthickness=0, bd=0)
         image_label.image = food_image_with_mask
         image_label.place(x=200,y=0)
+
+    def update_menu(self):
+        self.item_ui_image = Item_UI_images()
+
+        food_list = Food.Food.food_list
+        for food in food_list:
+            self.add_food_to_list(food)
 
     def show(self):
         self.place(x=20, y=20)
@@ -230,6 +237,14 @@ class Add_food_panel(tkinter.Frame):
             description1_var.set("")
             description2_var.set("")
             self.hide()
+            root.update_menu()
+
+        def close():
+            name_var.set("")
+            price_var.set("")
+            description1_var.set("")
+            description2_var.set("")
+            self.hide()
 
         confirm_img = Image.open(os.path.join(sys.path[0], "resources\icons\confirm.png"))
         confirm_image = ImageTk.PhotoImage(confirm_img)
@@ -237,7 +252,15 @@ class Add_food_panel(tkinter.Frame):
         confirm_button = tkinter.Button(frame, image=confirm_image, bg=self.color_palette[3],
          highlightthickness=0, bd=0, activebackground=self.color_palette[3], command=confirm)
         confirm_button.image = confirm_image
-        confirm_button.grid(row=7, column=0, columnspan=2, padx=8, pady=4)
+        confirm_button.grid(row=7, column=1, padx=8, pady=4)
+
+        close_img = Image.open(os.path.join(sys.path[0], "resources\icons\close.png"))
+        close_image = ImageTk.PhotoImage(close_img)
+
+        close_button = tkinter.Button(frame, image=close_image, bg=self.color_palette[3],
+         highlightthickness=0, bd=0, activebackground=self.color_palette[3], command=close)
+        close_button.image = close_image
+        close_button.grid(row=7, column=0, padx=8, pady=4)
 
     def show(self):
         self.place(x=0, y=0)
