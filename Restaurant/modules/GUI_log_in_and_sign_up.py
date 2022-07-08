@@ -6,12 +6,15 @@ from modules import val_functions
 
 pages = []
 
+def close_page():
+    base_frame.pack_forget()
 
 def main(root, color_palette, db):
     global DB
     DB = db
 
     #base frame
+    global base_frame
 
     base_frame = tkinter.Frame(root, bg=color_palette[4], width=1280, height=720)
     base_frame.pack_propagate(0)
@@ -28,18 +31,20 @@ def main(root, color_palette, db):
 
     #log in frame and sign in frame
 
-    user_log_in_frame = User_Log_in_page(main_frame, color_palette)
+    user_log_in_frame = User_Log_in_page(main_frame, color_palette, root)
     pages.append(user_log_in_frame)
     sign_in_frame = Sign_up_page(main_frame, color_palette)
     pages.append(sign_in_frame)
     forgot_password_frame = Forgot_password_page(main_frame, color_palette)
     pages.append(forgot_password_frame)
-    manager_log_in_frame = Manager_Log_in_page(main_frame, color_palette)
+    manager_log_in_frame = Manager_Log_in_page(main_frame, color_palette, root)
     pages.append(manager_log_in_frame)
 
     #place log in frame
 
     change_page(0)
+
+    return
 
 def change_page(page_inex):
     for i in range(len(pages)):
@@ -61,7 +66,7 @@ class Page(tkinter.Frame):
         self.place_forget()
 
 class User_Log_in_page(Page):
-    def __init__(self, root, color_palette):
+    def __init__(self, root, color_palette, main_root):
         super().__init__(root, width=415, height=430, bg=color_palette[3])
         self.pack_propagate(0)
 
@@ -144,8 +149,18 @@ class User_Log_in_page(Page):
 
         #log in button
 
+        def loggin():
+            user = DB.get_user_obj(self.email_var.get(), self.password_var.get())
+            if(isinstance(user, str)):
+                self.display_error_message(user)
+            else:
+                close_page()
+                main_root.open_user_app(user)
+                
+
+
         tkinter.Button(button_frame, text="ورود", font=font_persian, width=26, bg=color_palette[4],
-        activebackground=color_palette[3], highlightthickness=0, bd=0).grid(row=0, column=0, columnspan=3)
+        activebackground=color_palette[3], highlightthickness=0, bd=0, command=loggin).grid(row=0, column=0, columnspan=3)
         
         #sign up button 
 
@@ -170,7 +185,7 @@ class User_Log_in_page(Page):
         self.error_label.configure(text=text)
 
 class Manager_Log_in_page(Page):
-    def __init__(self, root, color_palette):
+    def __init__(self, root, color_palette, main_root):
         super().__init__(root, width=415, height=430, bg=color_palette[3])
         self.pack_propagate(0)
 
@@ -251,10 +266,18 @@ class Manager_Log_in_page(Page):
         button_frame.pack(pady=12)
         font_persian = font.Font(family="Mj_Flow", size=14)
 
+        def loggin():
+            admin = DB.get_manager_obj(self.manager_id_var.get(), self.password_var.get())
+            if(isinstance(admin, str)):
+                self.display_error_message(admin)
+            else:
+                close_page()
+                main_root.open_manager_app(admin)
+
         #log in button
 
         tkinter.Button(button_frame, text="ورود", font=font_persian, width=26, bg=color_palette[4],
-        activebackground=color_palette[3], highlightthickness=0, bd=0).grid(row=0, column=0, columnspan=3)
+        activebackground=color_palette[3], highlightthickness=0, bd=0, command=loggin).grid(row=0, column=0, columnspan=3)
 
         #sign up button 
 
@@ -388,7 +411,6 @@ class Sign_up_page(Page):
                  self.phone_number_var.get(), self.email_var.get(), self.password_var.get())
             else:
                 self.display_error_message(val)
-            print(DB.get_table_data("user"))
 
         tkinter.Button(button_frame, text="ثبت نام", font=font_persian, width=16, bg=color_palette[4],
         activebackground=color_palette[3], highlightthickness=0, bd=0, command=Sign_UP).grid(row=0, column=1, padx=10)

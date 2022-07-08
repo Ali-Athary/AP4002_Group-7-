@@ -1,9 +1,10 @@
 import sqlite3
-import os
+import os, sys
 from PIL import Image
 import time
 from modules import UserAndManager
 from modules import Food
+import hashlib
 
 class DB:
     def __init__(self, path):
@@ -54,7 +55,7 @@ class DB:
             self.cur.execute('''
             CREATE TABLE password(
                 user_id TEXT,
-                password INTEGER
+                password TEXT
             )
             ''')
             
@@ -99,7 +100,7 @@ class DB:
                     ?, ?, ?, ?, ?
                 )
                 '''
-            ,('نام', 'نام خانوادگی', 'hakimie', 'address', None))
+            ,('نام', 'نام خانوادگی', 'hakimie', 'address', self.image_to_bin(Image.open(os.path.join(sys.path[0], "resources\panels\menu_image.jpg")))))
 
             self.cur.execute('''
             CREATE TABLE discount(
@@ -156,7 +157,7 @@ class DB:
         # add a record to password table
         self.cur.execute('''
         INSERT INTO password VALUES (?, ?)
-        ''', (user_id, hash(password)))
+        ''', (user_id, hashlib.sha224(bytes(password, 'utf-8')).hexdigest()))
         self.con.commit()
 
     def change_account_info(self, new_name, new_l_name, 
@@ -166,7 +167,7 @@ class DB:
         self.cur.execute('''
         UPDATE user
         SET name = ?,
-        l_name = ?,
+        last_name = ?,
         id = ?,
         phone = ?,
         email = ?
@@ -180,10 +181,10 @@ class DB:
         hashed_pass = self.cur.execute('''
         SELECT * FROM password WHERE user_id = ?
         ''', (user_id, )).fetchone()[1]
-        if hash(old_password) == hashed_pass:
+        if hashlib.sha224(bytes(old_password, 'utf-8')).hexdigest() == hashed_pass:
             self.cur.execute('''
             UPDATE password SET password = ? WHERE user_id = ?
-            ''', (hash(new_password), user_id))
+            ''', (hashlib.sha224(bytes(new_password, 'utf-8')).hexdigest(), user_id))
             self.con.commit()
             return 0 # password changed successfully
         else:
@@ -197,28 +198,34 @@ class DB:
         self.con.commit() 
 
     def get_user_obj(self, email, password):
-        user_id = self.get_user_id(email)
-        user_pass = self.cur.execute('''
-        SELECT password FROM password WHERE user_id = ?
-        ''', (user_id, )).fetchone()
-        if user_pass != None and user_pass[0] == hash(password):
-            data = self.cur.execute('''
-            SELECT * from user WHERE user_id = ?
+        user_id = self.cur.execute('''
+        SELECT user_id FROM user WHERE email = ?
+        ''', (email, )).fetchone()
+        if(user_id != None):
+            user_id = user_id[0]
+            user_pass = self.cur.execute('''
+            SELECT password FROM password WHERE user_id = ?
             ''', (user_id, )).fetchone()
-            return UserAndManager.User(data[0], data[1], data[2], 
-            data[3], data[4], data[5], user_id, self)
+            if user_pass[0] == hashlib.sha224(bytes(password, 'utf-8')).hexdigest():
+                data = self.cur.execute('''
+                SELECT * from user WHERE user_id = ?
+                ''', (user_id, )).fetchone()
+                return UserAndManager.User(data[0], data[1], data[2], 
+                data[3], data[4], data[5], user_id, self)
+            else:
+                return 'نام کاربری یا رمز عبور اشتباه است'
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
 
     def get_manager_obj(self, personal_id, password):
         user_pass = self.cur.execute('''
-        SELECT pasword FROM admin WHERE personal_id = ?
+        SELECT password FROM admin WHERE personal_id = ?
         ''', (personal_id, )).fetchone()
         if user_pass != None and user_pass[0] == password:
             x = self.cur.execute('''
                 SELECT * FROM admin WHERE personal_id = ?
                 ''', (personal_id, )).fetchone()
-            return UserAndManager.Manager(personal_id, *x[:6])
+            return UserAndManager.Manager(personal_id, *x[:6], self)
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
     
@@ -226,11 +233,12 @@ class DB:
         self.cur.execute('''
             UPDATE admin
             SET name = ?,
-                l_name = ?,
+                last_name = ?,
                 phone = ?,
                 email = ?
             WHERE personal_id = ?
         ''', (name, l_name, phone, email, personal_id))
+        self.con.commit()
 
     def change_manager_password(self, personal_id, password, new_pass):
         user_pass = self.cur.execute(
@@ -248,7 +256,6 @@ class DB:
         else:
             return 1 # not successfull
         
-
     def create_food(self, food_id, name, price, picture, discription1, discription2, count):
         discription = self.discription_list_to_str(discription1, discription2)
         picture = self.image_to_array(picture)
@@ -356,9 +363,11 @@ class DB:
         self.con.commit()
         
     def get_table_data(self, table):
-        return self.cur.execute(f'''
+        table = self.cur.execute(f'''
             SELECT * FROM {table}
             ''').fetchall()
+        self.con.commit()
+        return table
         
     def get_user_id(self, email):
         return self.cur.execute('''

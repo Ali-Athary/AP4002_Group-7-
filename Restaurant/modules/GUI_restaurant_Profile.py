@@ -4,9 +4,10 @@ from PIL import ImageTk, Image
 import os
 import sys
 import jdatetime
+from modules import UserAndManager
 
 class Profile_panel(tkinter.Label):
-    def __init__(self, root, color_palette):
+    def __init__(self, root, color_palette, admin:UserAndManager.Manager):
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\simple_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
@@ -29,7 +30,7 @@ class Profile_panel(tkinter.Label):
 
         # menu image
 
-        menu_img = Image.open(os.path.join(sys.path[0], "resources\panels\menu.jpg"))
+        menu_img = admin.restaurant_menu
         menu_img = menu_img.resize((256,int((menu_img.height/menu_img.width)*256)), Image.ANTIALIAS)
         if(menu_img.height > 512):
             menu_img = menu_img.resize((int((menu_img.width/menu_img.height)*512),512), Image.ANTIALIAS)
@@ -45,10 +46,18 @@ class Profile_panel(tkinter.Label):
         def choose_picture():
             file_directory = filedialog.askopenfilename(title='select', filetypes=[
                     ("image", ".jpeg"),
-                    ("image", ".png"),
+                    #("image", ".png"),
                     ("image", ".jpg"),
                 ])
-            print(file_directory)
+            admin.change_menu_pic(Image.open(file_directory))
+            menu_img = admin.restaurant_menu
+            menu_img = menu_img.resize((256,int((menu_img.height/menu_img.width)*256)), Image.ANTIALIAS)
+            if(menu_img.height > 512):
+                menu_img = menu_img.resize((int((menu_img.width/menu_img.height)*512),512), Image.ANTIALIAS)
+
+            menu_image = ImageTk.PhotoImage(menu_img)
+            menu_image_label.configure(image = menu_image)
+            menu_image_label.image = menu_image
 
         tkinter.Label(picture_frame, text="تغییر تصویر", font=font1, bg=self.color_palette[3]).grid(row=2, column=1)
 
@@ -77,7 +86,7 @@ class Profile_panel(tkinter.Label):
         tkinter.Label(info_frame, text=" نام مدیر", font=font1, bg=self.color_palette[3]).grid(row=0, column=1, padx=8, pady=8)
 
         first_name_var = tkinter.StringVar()
-        first_name_var.set("نام")
+        first_name_var.set(admin.manager_name)
         first_name_entry =tkinter.Entry(info_frame, textvariable=first_name_var, width=26, justify=tkinter.CENTER,
          font=font1, bg=self.color_palette[4], disabledforeground="black", disabledbackground=self.color_palette[3],
          highlightthickness=0, bd=0,  highlightbackground=self.color_palette[4], highlightcolor=self.color_palette[2])
@@ -89,7 +98,7 @@ class Profile_panel(tkinter.Label):
         tkinter.Label(info_frame, text="نام خانوادگی مدیر", font=font1, bg=self.color_palette[3]).grid(row=1, column=1, padx=8, pady=8)
 
         last_name_var = tkinter.StringVar()
-        last_name_var.set("نام خانوادگی")
+        last_name_var.set(admin.manager_last_name)
         last_name_entry = tkinter.Entry(info_frame, textvariable=last_name_var, width=26, justify=tkinter.CENTER,
          font=font1, bg=self.color_palette[4], disabledforeground="black", disabledbackground=self.color_palette[3],
          highlightthickness=0, bd=0,  highlightbackground=self.color_palette[4], highlightcolor=self.color_palette[2])
@@ -101,7 +110,7 @@ class Profile_panel(tkinter.Label):
         tkinter.Label(info_frame, text="منطقه رستوران", font=font1, bg=self.color_palette[3]).grid(row=2, column=1, padx=8, pady=8)
         
         area_var = tkinter.StringVar()
-        area_var.set("حکیمیه")        
+        area_var.set(admin.restaurant_district)        
         area_entry = tkinter.Entry(info_frame, textvariable=area_var,  width=22, justify=tkinter.CENTER,
          font=font_english, bg=self.color_palette[4], disabledforeground="black", disabledbackground=self.color_palette[3],
          highlightthickness=0, bd=0,  highlightbackground=self.color_palette[4], highlightcolor=self.color_palette[2])
@@ -113,12 +122,18 @@ class Profile_panel(tkinter.Label):
         tkinter.Label(info_frame, text="آدرس رستوران", font=font1, bg=self.color_palette[3]).grid(row=3, column=1, padx=8, pady=8)
         
         address_var = tkinter.StringVar()
-        address_var.set("تهران، حکیمیه، خیابان") 
+        address_var.set(admin.restaurant_address) 
         address_entry = tkinter.Entry(info_frame, width=22, textvariable=address_var, justify=tkinter.CENTER,
          font=font_english, bg=self.color_palette[4], disabledforeground="black", disabledbackground=self.color_palette[3],
          highlightthickness=0, bd=0, highlightbackground=self.color_palette[4], highlightcolor=self.color_palette[2])
         address_entry.config(state="disable")
         address_entry.grid(row=3, column=0, padx=8, pady=8)
+
+        #eror message
+
+        self.error_message_label = tkinter.Label(info_frame, text=" ", fg=color_palette[2], font=font2,
+         bg=color_palette[3])
+        self.error_message_label.grid(row=4, column=0, columnspan=2)
 
         #     eddit
 
@@ -134,7 +149,7 @@ class Profile_panel(tkinter.Label):
             last_name_entry.config(state="normal", highlightthickness=1)
             area_entry.config(state="normal", highlightthickness=1)
             address_entry.config(state="normal", highlightthickness=1)
-            confirm_button.grid(row=4, column=0, padx=8)
+            confirm_button.grid(row=5, column=0, padx=8)
 
         def confirm():
             first_name_entry.config(state="disable", highlightthickness=0)
@@ -142,6 +157,17 @@ class Profile_panel(tkinter.Label):
             area_entry.config(state="disable", highlightthickness=0)
             address_entry.config(state="disable", highlightthickness=0)
             confirm_button.grid_forget()
+            var = admin.change_owner_info(first_name_var.get(), last_name_var.get(),area_var.get(), address_var.get())
+            if(isinstance(var, str)):
+                self.error_message_label.configure(text=var)
+            else:
+                self.error_message_label.configure(text=" ")
+            
+            first_name_var.set(admin.manager_name)
+            last_name_var.set(admin.manager_last_name)
+            area_entry.set(admin.restaurant_district)
+            address_entry.set(admin.restaurant_address)
+
 
         eddit_img = Image.open(os.path.join(sys.path[0], "resources\icons\eddit.png"))
         eddit_image = ImageTk.PhotoImage(eddit_img)
@@ -149,10 +175,11 @@ class Profile_panel(tkinter.Label):
         eddit_button = tkinter.Button(info_frame, image=eddit_image, font=font1, bg=self.color_palette[3],
          highlightthickness=0, bd=0, activebackground=self.color_palette[3], command=lambda:eddit())
         eddit_button.image = eddit_image
-        eddit_button.grid(row=4, column=1, padx=8)
+        eddit_button.grid(row=5, column=1, padx=8)
 
     def show(self):
         self.place(x=20, y=20)
 
     def hide(self):
+        self.error_message_label.configure(text=" ")
         self.place_forget()

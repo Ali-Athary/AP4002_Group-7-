@@ -2,6 +2,7 @@ from modules import DataBase
 from PIL import Image
 from modules import Food
 from modules import val_functions
+import sys , os
 
 class Manager:
     def __init__(self, personal_id, name, l_name, 
@@ -13,18 +14,24 @@ class Manager:
         self.email = email
         self.phone = phone 
         self.picture = DataBase.DB.bin_to_image(picture)
+        if(self.picture == None):
+            self.picture = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")
         if isinstance(db, DataBase.DB):
             self.db = db
         Food.Food.load_foods(self.db)
 
         self.get_owner_data()
         
-    def change_admin_info(self, name, l_name, phone, email):
+    def change_account_info(self, name, l_name, phone, email):
         var = val_functions.change_acc_info_val(name, l_name, self.id,
             phone, email, self.db, self.email)
         if var == True:
             self.db.change_manager_info(self.personal_id, name,
                 l_name, phone, email)
+            self.name = name
+            self.l_name = l_name
+            self.phone = phone
+            self.email = email
         else:
             return var
         
@@ -64,7 +71,7 @@ class Manager:
         self.manager_last_name = row[1]
         self.restaurant_district = row[2]
         self.restaurant_address = row[3]
-        self.restaurant_menu = row[4]
+        self.restaurant_menu = self.db.bin_to_image(row[4])
 
     def create_food(self, name, price, discription1, discription2, picture : Image.Image):
         Food.Food.add_food(name, int(price), picture,
@@ -88,6 +95,8 @@ class User:
         self.email = email
         self.phone = phone
         self.picture = DataBase.DB.bin_to_image(picture)
+        if(self.picture == None):
+            self.picture = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")
         self.user_id = user_id
         self.db = db
 
@@ -133,7 +142,10 @@ class User:
                 last_order = _[1]
                 break
         last_order = last_order.split('|')
-        return list(map(lambda x: Food.FoodLog(*x.split('$')), last_order))
+        if len(last_order) == 1:
+            return []
+        else:
+            return list(map(lambda x: Food.FoodLog(*x.split('$')), last_order))
 
     def save_last_order(self):
         'save the unfinished order to the data-base'
@@ -176,6 +188,10 @@ class User:
         if var == True:
             self.db.change_account_info(name, l_name, self.id,
             phone, email, self.email)
+            self.name = name
+            self.l_name = l_name
+            self.phone = phone
+            self.email = email
         else:
             return var
 

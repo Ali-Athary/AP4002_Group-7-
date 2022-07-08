@@ -40,6 +40,8 @@ def l_name_val(l_name):
 
 def id_val(id : str):
     # validates id
+    if(id == None):
+        return True
     if not id.isdigit() or len(id) != 10:
         return 'کدملی معتبر نیست'
     else: return True

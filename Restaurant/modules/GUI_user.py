@@ -8,9 +8,9 @@ from modules import GUI_user_Food_Menu_page, GUI_user_Cart, GUI_user_History, GU
 pages = {}
 active_page_name = ""
 
-def set_profile_info(**kwargs):
+def set_profile_info(User):
     global profile_info
-    profile_info = Profile_info(**kwargs)
+    profile_info = Profile_info(User)
 
 def change_page(name):
     global active_page_name, pages
@@ -25,11 +25,11 @@ def change_page(name):
 
     active_page_name = name
 
-
-def main(root, color_palette):
-    global active_page_name, pages
+def main(root, color_palette, user):
+    global active_page_name, pages, User
+    User = user
     #main frame
-    set_profile_info()
+    set_profile_info(user)
 
     img = Image.open(os.path.join(sys.path[0], "resources\panels\\main_panel_background.png")).convert("RGBA")
     image = ImageTk.PhotoImage(img)
@@ -69,7 +69,7 @@ def main(root, color_palette):
 
     #profile panel
 
-    history_page = GUI_user_Profile.Profile_panel(main_frame, color_palette)
+    history_page = GUI_user_Profile.Profile_panel(main_frame, color_palette, User, right_menu)
     pages["profile"] = history_page
 
     active_page_name = "profile"
@@ -78,9 +78,9 @@ def main(root, color_palette):
     
 
 class Profile_info():
-    def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):
-        self.name = profile_name
-        self.image = profile_image
+    def __init__(self, user):
+        self.name = user.name
+        self.image = user.picture
 
 class Right_menu(tkinter.Frame):
     def __init__(self, root, color_palette):
@@ -100,15 +100,16 @@ class Right_menu(tkinter.Frame):
         profile_img = profile_info.image.resize((128,128), Image.ANTIALIAS)
         profile_img.paste(profile_frame_image, (0, 0), profile_frame_image)
         profile_image = ImageTk.PhotoImage(profile_img)
-        profile_image_label = tkinter.Button(profile_frame, image=profile_image, bg=color_palette[4],
+        self.profile_image_label = tkinter.Button(profile_frame, image=profile_image, bg=color_palette[4],
          activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("profile"))
-        profile_image_label.image = profile_image
-        profile_image_label.pack()   
+        self.profile_image_label.image = profile_image
+        self.profile_image_label.pack()   
 
         #profile name
 
-        profile_image_label = tkinter.Button(profile_frame,text=profile_info.name, font=font1, bg=color_palette[4],
-         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("profile")).pack()
+        self.profile_image_label_name = tkinter.Button(profile_frame,text=User.name + "\n" + User.l_name, font=font1, bg=color_palette[4],
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("profile"))
+        self.profile_image_label_name.pack()
 
         #button frame
 
@@ -162,6 +163,16 @@ class Right_menu(tkinter.Frame):
         suggestion_button.grid(row=3, column=1)   
 
         tkinter.Label(button_frame, text="نظر دهی", font=font1, bg=color_palette[4], fg=color_palette[0]).grid(row=3, column=0)    
+
+    def update_info(self):
+        self.profile_image_label_name.configure(text=User.name + "\n" + User.l_name)
+
+        profile_frame_image = Image.open(os.path.join(sys.path[0], "resources\panels\profile_photo_mask.png"))
+        profile_img = User.picture.resize((128,128), Image.ANTIALIAS)
+        profile_img.paste(profile_frame_image, (0, 0), profile_frame_image)
+        profile_image = ImageTk.PhotoImage(profile_img)
+        self.profile_image_label.configure(image = profile_image)
+        self.profile_image_label.image = profile_image
 
     def show(self):
         self.place(x=1090, y=40)
