@@ -85,7 +85,10 @@ class Manager:
         Food.Food.delete_food(food, self.db)
     
     def view_comments(self):
-        ...
+        return self.db.view_opinion()
+    
+    def create_discount_code(self, code, value):
+        self.db.add_discount_code(code, value)
     
 class User:
     def __init__(self, name, l_name, id, email, phone, picture : bytes, user_id, db):

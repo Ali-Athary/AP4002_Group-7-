@@ -5,6 +5,7 @@ import time
 from modules import UserAndManager
 from modules import Food
 import hashlib
+from io import BytesIO
 
 class DB:
     def __init__(self, path):
@@ -448,11 +449,7 @@ class DB:
     @staticmethod
     def bin_to_image(bin : bytes):
         try:
-            with open(os.path.join(sys.path[0], "database\\temp.jpg"), 'wb') as file:
-                file.write(bin)
-            image = Image.open(os.path.join(sys.path[0], "database\\temp.jpg"))
-            os.system('del ' + os.path.join(sys.path[0], "database\\temp.jpg"))
-            os.system('rm ' + os.path.join(sys.path[0], "database\\temp.jpg"))
+            image = Image.open(BytesIO(bin))
             return image
         except TypeError:
             return None
