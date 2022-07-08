@@ -17,11 +17,13 @@ def change_page(name):
 
     if(active_page_name == name):
         return
-
+   
     pages[active_page_name].hide()
     pages[name].show()
     pages["right_menu"].hide()
     pages["right_menu"].show()
+
+    pages[name].update_page()
 
     active_page_name = name
 
@@ -44,36 +46,33 @@ def main(root, color_palette, user):
     pages["right_menu"] = right_menu
     right_menu.show()
 
-    #food menu panel
-
-    food_menu_page = GUI_user_Food_Menu_page.Food_menu_panel(main_frame, color_palette)
-    pages["food_menu"] = food_menu_page
-
-    #active_page_name = "food_menu"
-    #food_menu_page.show()
-
     #cart panel
 
-    cart_page = GUI_user_Cart.Cart_panel(main_frame, color_palette)
+    cart_page = GUI_user_Cart.Cart_panel(main_frame, color_palette, User)
     pages["cart"] = cart_page
+
+    #food menu panel
+
+    food_menu_page = GUI_user_Food_Menu_page.Food_menu_panel(main_frame, color_palette, User, cart_page)
+    pages["food_menu"] = food_menu_page
+
+    active_page_name = "food_menu"
+    food_menu_page.show()
 
     #history panel
 
-    history_page = GUI_user_History.History_panel(main_frame, color_palette)
+    history_page = GUI_user_History.History_panel(main_frame, color_palette, User)
     pages["history"] = history_page
 
     #suggestion panel
 
-    history_page = GUI_user_Suggestion.Suggestion_panel(main_frame, color_palette)
+    history_page = GUI_user_Suggestion.Suggestion_panel(main_frame, color_palette, User)
     pages["suggestion"] = history_page
 
     #profile panel
 
     history_page = GUI_user_Profile.Profile_panel(main_frame, color_palette, User, right_menu)
     pages["profile"] = history_page
-
-    active_page_name = "profile"
-    history_page.show()
 
     
 

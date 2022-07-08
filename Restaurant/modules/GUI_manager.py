@@ -66,18 +66,18 @@ def main(root, color_palette, _admin:UserAndManager.Manager):
 
     #orders panel
 
-    orders_page = GUI_manager_Orders.Orders_panel(main_frame, color_palette)
+    orders_page = GUI_manager_Orders.Orders_panel(main_frame, color_palette, admin)
     pages["orders"] = orders_page
 
     #orders panel
 
-    financial_page = GUI_manager_Financial.Information_panel(main_frame, color_palette)
+    financial_page = GUI_manager_Financial.Information_panel(main_frame, color_palette, admin)
     pages["financial"] = financial_page
 
     #food menu
 
-    financial_page = GUI_manager_Food_menu.Food_menu_panel(main_frame, color_palette, admin, inventory_page)
-    pages["food_menu"] = financial_page
+    food_menu_page = GUI_manager_Food_menu.Food_menu_panel(main_frame, color_palette, admin, inventory_page)
+    pages["food_menu"] = food_menu_page
 
 class Profile_info():
     def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):

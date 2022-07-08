@@ -14,11 +14,10 @@ class Manager:
         self.id = id
         self.email = email
         self.phone = phone 
-        #self.picture = Image.open(BytesIO(picture))
-        self.picture = DataBase.DB.bin_to_image(picture)
-        if(self.picture == None):
+        if(picture == None):
             self.picture = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")
-        #self.picture.show()
+        else:
+            self.picture = DataBase.DB.bin_to_image(picture)
         if isinstance(db, DataBase.DB):
             self.db = db
         Food.Food.load_foods(self.db)
@@ -158,9 +157,10 @@ class User:
         self.id = id
         self.email = email
         self.phone = phone
-        self.picture = DataBase.DB.bin_to_image(picture)
-        if(self.picture == None):
+        if(picture == None):
             self.picture = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")
+        else:
+            self.picture = DataBase.DB.bin_to_image(picture)
         self.user_id = user_id
         self.db = db
 
@@ -175,7 +175,12 @@ class User:
         if food.amount - count < 0:
             return 'ناموفق'
         food.amount -= count
-        self.last_order.append(Food.FoodLog(food.food_id, food.name, date , count, food.price, food.original_price))
+        for _ in self.last_order:
+            if (_.food_id == food.food_id and _.date == date):
+                _.count += count
+                break
+        else:
+            self.last_order.append(Food.FoodLog(food.food_id, food.name, date , count, food.price, food.original_price))
         self.total_price = self.get_total_price()
         return 0
 
@@ -194,7 +199,7 @@ class User:
                 
         order_log = Food.OrderLog(temp_food, self.get_total_price(), self.get_orginal_price(), date, self.off_code, self.db.use_discount(self.off_code))
         self.db.update_user_log(self.email, order_log)
-        self.order_log = self.db.get_user_log()
+        self.order_log = self.db.get_user_log(self.email)
         self.last_order = []
         self.save_last_order()
 
@@ -241,7 +246,10 @@ class User:
         return x
 
     def purchasable_price(self):
-        v =  self.get_total_price() - self.db.get_discount_value(self.off_code)
+        try:
+            v =  self.get_total_price() - self.db.get_discount_value(self.off_code)
+        except TypeError:
+            v = self.get_total_price()
         if v < 0:
             return 0
         return v

@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 import os
 import sys
 import jdatetime
+from modules import Food, functions, UserAndManager
 
 class Cart_Item_UI_images():
     def __init__(self) -> None:
@@ -19,9 +20,10 @@ class Cart_Item_UI_images():
         change_img = Image.open(os.path.join(sys.path[0], "resources\icons\\cart_item_change_button.png")).convert("RGBA")
         self.change = ImageTk.PhotoImage(change_img)
 
-
 class Cart_panel(tkinter.Label):
-    def __init__(self, root, color_palette):
+    def __init__(self, root, color_palette, _user:UserAndManager.User):
+        global user
+        user = _user
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\user_food_menu_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
@@ -33,13 +35,15 @@ class Cart_panel(tkinter.Label):
 
         #top bar
 
-        top_bar = Cart_top_bar(self, color_palette)
-        top_bar.show()
+        self.top_bar = Cart_top_bar(self, color_palette)
+        self.top_bar.show()
 
         #items frame
 
         self.item_frame = Item_ScrollableFrame(self, color_palette)
         self.item_frame.place(x=20, y=100)
+
+        self.items = []
 
         for i in range(4):
             self.Add_cart_item("1401/04/1", [1,2,3])
@@ -49,6 +53,8 @@ class Cart_panel(tkinter.Label):
 
         frame = tkinter.Frame(self.item_frame.scrollable_frame, width=980, height=400, bg=self.color_palette[3])
         frame.pack(pady=8)
+
+        self.items.append(frame)
 
         font1 = font.Font(family="Mj_Flow", size=19)
         font2 = font.Font(family="Dast Nevis", size=19)
@@ -99,75 +105,92 @@ class Cart_panel(tkinter.Label):
         # purchase items
 
         for item in items:
-            # item frame
+            if(isinstance(item, Food.FoodLog)):
+                # item frame
 
-            item_frame = tkinter.Frame(frame, width=960, height=100, bg=self.color_palette[4],
-             highlightbackground=self.color_palette[2], highlightthickness=2)
-            item_frame.pack_propagate(0)
-            item_frame.pack(pady=10)
+                item_frame = tkinter.Frame(frame, width=960, height=100, bg=self.color_palette[4],
+                highlightbackground=self.color_palette[2], highlightthickness=2)
+                item_frame.pack_propagate(0)
+                item_frame.pack(pady=10)
 
-            # info frame
+                # info frame
 
-            item_info_frame = tkinter.Frame(item_frame, width=580, height=90, bg=self.color_palette[4])
-            item_info_frame.pack_propagate(0)
-            item_info_frame.pack(side=tkinter.RIGHT)
+                item_info_frame = tkinter.Frame(item_frame, width=580, height=90, bg=self.color_palette[4])
+                item_info_frame.pack_propagate(0)
+                item_info_frame.pack(side=tkinter.RIGHT)
 
-            tkinter.Label(item_info_frame, text="سیب زمینی سرخ کرده", font=font2, width=12,
-             bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-            tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
-            tkinter.Label(item_info_frame, text="140230", font=font2, width=8,
-             bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-            tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
-            tkinter.Label(item_info_frame, text="140230", font=font2, width=10,
-             bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-            tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
-            # adjust frame
+                tkinter.Label(item_info_frame, text=item.name, font=font2, width=12,
+                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+                tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+                tkinter.Label(item_info_frame, text=functions.turn_int_to_price(item.price), font=font2, width=8,
+                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+                tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+                tkinter.Label(item_info_frame, text=functions.turn_int_to_price(item.price * item.count), font=font2, width=10,
+                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+                tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
 
-            item_adjust_frame = tkinter.Frame(item_frame, width=380, height=90, bg=self.color_palette[4])
-            item_adjust_frame.pack_propagate(0)
-            item_adjust_frame.pack(side=tkinter.LEFT, padx=5)
+                # adjust frame
 
-            # count adjustment
-             
-            count_frame = tkinter.Frame(item_adjust_frame, width=220, height=40, bg=self.color_palette[4])
-            count_frame.place(x=240, y=20, anchor=tkinter.CENTER)
+                item_adjust_frame = tkinter.Frame(item_frame, width=380, height=90, bg=self.color_palette[4])
+                item_adjust_frame.pack_propagate(0)
+                item_adjust_frame.pack(side=tkinter.LEFT, padx=5)
+
+                # count adjustment
+                
+                count_frame = tkinter.Frame(item_adjust_frame, width=220, height=40, bg=self.color_palette[4])
+                count_frame.place(x=240, y=20, anchor=tkinter.CENTER)
+                
+                count_label = tkinter.Label(count_frame, text=item.count, font=font2, bg=self.color_palette[4])
+                count_label.grid(row=0, column=1, padx=32)
+
+                cpunt = item.count
+
+                plus_button = tkinter.Button(count_frame, image=self.ui_images.plus, bg=self.color_palette[4],
+                highlightthickness=0, bd=0, activebackground=self.color_palette[4])
+                plus_button.image = self.ui_images.plus
+                plus_button.grid(row=0, column=2)
+
+                minus_button = tkinter.Button(count_frame, image=self.ui_images.minus, bg=self.color_palette[4],
+                highlightthickness=0, bd=0, activebackground=self.color_palette[4])
+                minus_button.image = self.ui_images.minus
+                minus_button.grid(row=0, column=0)
+
+                # change count button
+
+                change_count_button = tkinter.Button(item_adjust_frame, image=self.ui_images.change, bg=self.color_palette[4],
+                highlightthickness=0, bd=0, activebackground=self.color_palette[4])
+                change_count_button.config(state="disable")
+                change_count_button.place(x=240, y=70, anchor=tkinter.CENTER)
+
+                #delete button
+
+                def delete(_item):
+                    user.remove_from_last_order(_item)
+                    self.update_page()
+
+                delete_button = tkinter.Button(item_adjust_frame, image=self.ui_images.trash_can, bg=self.color_palette[4],
+                highlightthickness=0, bd=0, activebackground=self.color_palette[4], command=lambda _item=item:delete(_item))
+                delete_button.image = self.ui_images.trash_can
+                delete_button.pack(side=tkinter.LEFT, padx=18)
+
+                tkinter.Label(item_adjust_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.LEFT, padx=8)
             
-            count_label = tkinter.Label(count_frame, text=12, font=font2, bg=self.color_palette[4])
-            count_label.grid(row=0, column=1, padx=32)
+    def update_page(self):        
+        for item in self.items:
+            item.pack_forget()
+        self.items = []
 
-            plus_button = tkinter.Button(count_frame, image=self.ui_images.plus, bg=self.color_palette[4],
-             highlightthickness=0, bd=0, activebackground=self.color_palette[4])
-            plus_button.image = self.ui_images.plus
-            plus_button.grid(row=0, column=2)
+        d = user.get_last_order_dict()
+        for key in d.keys():
+            self.Add_cart_item(key, d[key])
 
-            minus_button = tkinter.Button(count_frame, image=self.ui_images.minus, bg=self.color_palette[4],
-             highlightthickness=0, bd=0, activebackground=self.color_palette[4])
-            minus_button.image = self.ui_images.minus
-            minus_button.grid(row=0, column=0)
-
-            # change count button
-
-            change_count_button = tkinter.Button(item_adjust_frame, image=self.ui_images.change, bg=self.color_palette[4],
-             highlightthickness=0, bd=0, activebackground=self.color_palette[4])
-            change_count_button.config(state="disable")
-            change_count_button.place(x=240, y=70, anchor=tkinter.CENTER)
-
-            #delete button
-
-            delete_button = tkinter.Button(item_adjust_frame, image=self.ui_images.trash_can, bg=self.color_palette[4],
-             highlightthickness=0, bd=0, activebackground=self.color_palette[4])
-            delete_button.image = self.ui_images.trash_can
-            delete_button.pack(side=tkinter.LEFT, padx=18)
-
-            tkinter.Label(item_adjust_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.LEFT, padx=8)
-            
+        self.top_bar.update_price()
 
     def show(self):
         self.place(x=20, y=20)
 
     def hide(self):
         self.place_forget()
-
 
 class Cart_top_bar(tkinter.Frame):
     def __init__(self, root, color_palette, final_price=1456789):
@@ -191,17 +214,10 @@ class Cart_top_bar(tkinter.Frame):
         tkinter.Label(info_frame, text="قیمت نهایی", font=font1, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=0)
         tkinter.Label(info_frame, text=":", font=font1, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=5)
         
-        price = str(self.final_price)
-        for i in range((len(price) // 3) + 1):
-            if(i == 0):
-                three_diits = price[-3:]
-            else:
-                three_diits = price[-3-(i*3):-(i*3)]
-                if(len(three_diits) > 0):
-                    tkinter.Label(info_frame, text="،", font=font2, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=0)
+        self.price_label = tkinter.Label(info_frame, text="0", font=font2, bg=color_palette[3])
+        self.price_label.pack(side=tkinter.RIGHT, padx=0)
 
-            tkinter.Label(info_frame, text=three_diits, font=font2, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=0)
-
+        self.update_price()
 
         tkinter.Label(info_frame, text="تومان", font=font2, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=5)
 
@@ -213,11 +229,15 @@ class Cart_top_bar(tkinter.Frame):
 
         # purchase complete button
 
+        def complete():
+            user.confirm_order(functions.get_date())
+            root.update_page()
+
         complete_img = Image.open(os.path.join(sys.path[0], "resources\icons\\cart_complete_purchase_button.png")).convert("RGBA")
         complete_image = ImageTk.PhotoImage(complete_img)
 
         purchase_complete_button = tkinter.Button(button_frame, bg=color_palette[3], image=complete_image,
-         highlightthickness=0, bd=0, activebackground=color_palette[3])
+         highlightthickness=0, bd=0, activebackground=color_palette[3], command=complete)
         purchase_complete_button.image = complete_image
         purchase_complete_button.pack(side=tkinter.LEFT)
 
@@ -230,14 +250,21 @@ class Cart_top_bar(tkinter.Frame):
         tkinter.Entry(button_frame, textvariable=discount_code_var, font=font_english, bg=color_palette[4],
          highlightthickness=0, bd=0, width=12).pack(side=tkinter.RIGHT)
 
+        def apply_discount():
+            user.apply_discount(discount_code_var.get())
+            self.update_price()
+
         complete_img = Image.open(os.path.join(sys.path[0], "resources\icons\\discount.png")).convert("RGBA")
         complete_image = ImageTk.PhotoImage(complete_img)
 
         purchase_complete_button = tkinter.Button(button_frame, bg=color_palette[3], image=complete_image,
-         highlightthickness=0, bd=0, activebackground=color_palette[3])
+         highlightthickness=0, bd=0, activebackground=color_palette[3], command=apply_discount)
         purchase_complete_button.image = complete_image
         purchase_complete_button.pack(side=tkinter.RIGHT)
 
+    def update_price(self):
+        self.final_price = user.purchasable_price()
+        self.price_label.configure(text=functions.turn_int_to_price(self.final_price))
 
     def change_month(self):
         if(int(self.month_var.get()) == self.months[1]):

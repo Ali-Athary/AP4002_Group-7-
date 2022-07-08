@@ -19,7 +19,7 @@ class App(tkinter.Tk):
  
     def open_user_app(self, user):
         GUI_user.main(self, color_palette, user)
-
+ 
     def open_manager_app(self, admin):
         GUI_manager.main(self, color_palette, admin)
 
