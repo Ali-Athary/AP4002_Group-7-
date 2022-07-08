@@ -61,7 +61,7 @@ def main(root, color_palette, _admin:UserAndManager.Manager):
 
     #inventory panel
 
-    inventory_page = GUI_manager_Inventory.Food_inventory_panel(main_frame, color_palette)
+    inventory_page = GUI_manager_Inventory.Food_inventory_panel(main_frame, color_palette, admin)
     pages["inventory"] = inventory_page
 
     #orders panel
