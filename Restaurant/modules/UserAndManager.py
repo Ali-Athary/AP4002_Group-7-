@@ -15,7 +15,7 @@ class Manager:
         self.phone = phone 
         self.picture = DataBase.DB.bin_to_image(picture)
         if(self.picture == None):
-            self.picture = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg"))
+            self.picture = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")
         if isinstance(db, DataBase.DB):
             self.db = db
         Food.Food.load_foods(self.db)
