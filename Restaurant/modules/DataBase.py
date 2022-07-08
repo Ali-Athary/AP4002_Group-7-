@@ -361,7 +361,14 @@ class DB:
             ''', (p_n_max, food.food_id, food.name, food.date, food.count, food.price))
 
         self.con.commit()
-        
+    
+    def delete_food(self, food_id):
+        self.cur.execute('''
+        DELETE FROM food WHERE food_id = ?
+        ''', (food_id, ))
+        self.con.commit()
+
+
     def get_table_data(self, table):
         table = self.cur.execute(f'''
             SELECT * FROM {table}

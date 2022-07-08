@@ -82,7 +82,7 @@ class Manager:
         food.update_food(count, self.db)
 
     def delete_food(self, food : Food.Food):
-        ...
+        Food.Food.delete_food(food, self.db)
     
     def view_comments(self):
         ...
