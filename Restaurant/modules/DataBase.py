@@ -373,7 +373,7 @@ class DB:
                 INSERT INTO {user_id}_food_log VALUES(
                     ?, ?, ?, ?, ?, ?, ?
                 )
-            ''', (p_n_max, food.food_id, food.name, food.date, food.count, food.price, food.original_price))
+            ''', (p_n_max + 1, food.food_id, food.name, food.date, food.count, food.price, food.original_price))
 
         self.con.commit()
     
