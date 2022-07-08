@@ -341,10 +341,10 @@ class DB:
         for i in range(p_n_max + 1, 0, -1):
             food_list = []
             for record in temp_list_foods:
-                if record[0] == i:
+                if record[0] == i - 1:
                     food_list.append(Food.FoodLog(*record[1:]))
             for order in temp_list_orders:
-                if order[0] == i:
+                if order[0] == i - 1:
                     log_list.append(Food.OrderLog(food_list, order[1], order[2], order[3], order[4], order[5], order[6], order[0]))
             
         return log_list

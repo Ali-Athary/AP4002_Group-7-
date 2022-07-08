@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 import os
 import sys
 import jdatetime
+from modules import Food, functions, UserAndManager
 
 class Order_item_UI_images():
     def __init__(self):
@@ -23,7 +24,9 @@ class Order_item_UI_images():
         self.add = ImageTk.PhotoImage(add_img)
 
 class Orders_panel(tkinter.Label):
-    def __init__(self, root, color_palette):
+    def __init__(self, root, color_palette, _admin:UserAndManager.Manager):
+        global admin
+        admin = _admin
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\user_food_menu_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
@@ -46,9 +49,9 @@ class Orders_panel(tkinter.Label):
 
         self.oderes_frames = {}
 
-        unpaid_orders_frame = Order_Item_ScrollableFrame(self, color_palette, x=20, y=160)
-        self.oderes_frames["unpaid_orders_frame"] = unpaid_orders_frame
-        self.change_order_frame("unpaid_orders_frame")
+        all_orders_frame = Order_Item_ScrollableFrame(self, color_palette, x=20, y=160)
+        self.oderes_frames["total"] = all_orders_frame
+        self.change_order_frame("total")
 
         unaccepted_orders_frame = Order_Item_ScrollableFrame(self, color_palette, x=20, y=160)
         self.oderes_frames["unaccepted_orders_frame"] = unaccepted_orders_frame
@@ -56,11 +59,9 @@ class Orders_panel(tkinter.Label):
         completed_orders_frame = Order_Item_ScrollableFrame(self, color_palette, x=20, y=160)
         self.oderes_frames["completed_orders_frame"] = completed_orders_frame
 
-        for i in range(20):
-            self.oderes_frames["unpaid_orders_frame"].add_item("علی اطهری", "12,140,433", "1401/04/14", "-")
-            self.oderes_frames["unaccepted_orders_frame"].add_item("علی اطهری", "140،123", "1401/04/14", "1401/04/15")
-            self.oderes_frames["completed_orders_frame"].add_item("علی اطهری", "140،123", "1401/04/14", "1401/04/15")
-            pass
+        all_orders = admin.get_all_orders()
+        for order in all_orders:
+            self.oderes_frames["total"].add_item(order)
 
         self.show_detail()
 
@@ -250,8 +251,8 @@ class Orders_top_bar(tkinter.Frame):
         tkinter.Label(frame, text="نوع سفارشات", font=font3, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=2)
         tkinter.Label(frame, text=":", font=font3, bg=color_palette[3]).pack(side=tkinter.RIGHT, padx=2)
 
-        Types = ["در انتظار تسویه حساب", "در انتظار ارسال", "ارسال شده"]
-        frame_dict = {Types[0]:"unpaid_orders_frame",Types[1]:"unaccepted_orders_frame",Types[2]:"completed_orders_frame"}
+        Types = ["کل", "در انتظار ارسال", "ارسال شده"]
+        frame_dict = {Types[0]:"total",Types[1]:"unaccepted_orders_frame",Types[2]:"completed_orders_frame"}
 
         order_type_var = tkinter.StringVar()
         order_type_var.set(Types[0])
@@ -340,7 +341,7 @@ class ScrollableFrame(ttk.Frame):
         self.place_forget()
 
 class Order_Item_ScrollableFrame(ScrollableFrame):
-    def add_item(self, user_name, order_price, order_date, sent_date):
+    def add_item(self, order:Food.FullOrderLog):
         frame = tkinter.Frame(self.scrollable_frame, width=980, height=90, bg=self.color_palette[1])
         frame.pack_propagate(0)
         frame.pack(pady=4)
@@ -359,22 +360,22 @@ class Order_Item_ScrollableFrame(ScrollableFrame):
 
         # user name
 
-        tkinter.Label(frame, text=user_name, bg=self.color_palette[3], font=font1, width=12).pack(side=tkinter.RIGHT, padx=10)
+        tkinter.Label(frame, text=order.user_name, bg=self.color_palette[3], font=font1, width=12).pack(side=tkinter.RIGHT, padx=10)
         tkinter.Label(frame, text="", bg=self.color_palette[2], font=font1).pack(side=tkinter.RIGHT)
 
         # order price
 
-        tkinter.Label(frame, text=order_price, bg=self.color_palette[3], font=font2, width=10).pack(side=tkinter.RIGHT)
+        tkinter.Label(frame, text=order.total_price, bg=self.color_palette[3], font=font2, width=10).pack(side=tkinter.RIGHT)
         tkinter.Label(frame, text="", bg=self.color_palette[2], font=font1).pack(side=tkinter.RIGHT)
 
         # order date
 
-        tkinter.Label(frame, text=order_date, bg=self.color_palette[3], font=font2, width=9).pack(side=tkinter.RIGHT)
+        tkinter.Label(frame, text=order.date, bg=self.color_palette[3], font=font2, width=9).pack(side=tkinter.RIGHT)
         tkinter.Label(frame, text="", bg=self.color_palette[2], font=font1).pack(side=tkinter.RIGHT)
 
         # sent date
 
-        tkinter.Label(frame, text=sent_date, bg=self.color_palette[3], font=font2, width=9).pack(side=tkinter.RIGHT)
+        tkinter.Label(frame, text="-", bg=self.color_palette[3], font=font2, width=9).pack(side=tkinter.RIGHT)
         tkinter.Label(frame, text="", bg=self.color_palette[2], font=font1).pack(side=tkinter.RIGHT)
 
         # view button

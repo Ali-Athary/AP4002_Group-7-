@@ -6,9 +6,12 @@ import os
 import sys
 import jdatetime
 import threading
+from modules import Food, functions, UserAndManager
 
 class Suggestion_panel(tkinter.Label):
-    def __init__(self, root, color_palette):
+    def __init__(self, root, color_palette, _user:UserAndManager.User):
+        global user
+        user = _user
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\simple_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
@@ -54,6 +57,20 @@ class Suggestion_panel(tkinter.Label):
 
         text_box.place(x=960/2, y=30, anchor=tkinter.N)
         text_box.bind("<KeyRelease>", Right_to_Left)
+
+        #submit
+
+        def submit():
+            opinion = text_box.get("1.0",tkinter.END)
+            user.submit_opinion(opinion)
+
+        submit_img = Image.open(os.path.join(sys.path[0], "resources\icons\\submit.png")).convert("RGBA")
+        submit_image = ImageTk.PhotoImage(submit_img)
+
+        submit_complete_button = tkinter.Button(self, bg=color_palette[3], image=submit_image,
+         highlightthickness=0, bd=0, activebackground=color_palette[3], command=submit)
+        submit_complete_button.image = submit_image
+        submit_complete_button.pack()
 
     def update_page(self):
         pass

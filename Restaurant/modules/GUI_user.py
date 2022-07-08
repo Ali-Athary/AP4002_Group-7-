@@ -66,7 +66,7 @@ def main(root, color_palette, user):
 
     #suggestion panel
 
-    history_page = GUI_user_Suggestion.Suggestion_panel(main_frame, color_palette)
+    history_page = GUI_user_Suggestion.Suggestion_panel(main_frame, color_palette, User)
     pages["suggestion"] = history_page
 
     #profile panel

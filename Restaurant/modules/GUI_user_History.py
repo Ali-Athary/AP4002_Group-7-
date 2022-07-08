@@ -38,6 +38,8 @@ class History_panel(tkinter.Label):
         frame = tkinter.Frame(self.item_frame.scrollable_frame, width=980, height=400, bg=self.color_palette[3])
         frame.pack(pady=8)
 
+        self.items.append(frame)
+
         font1 = font.Font(family="Mj_Flow", size=19)
         font2 = font.Font(family="Dast Nevis", size=19)
         font_English = font.Font(family="Roboto", size=18)
@@ -165,8 +167,6 @@ class History_panel(tkinter.Label):
         log_list = user.get_order_log()
         for log in log_list:
             self.Add_cart_item(log)
-
-        tkinter.Frame(self.item_frame.scrollable_frame, width=980, height=140, bg=self.color_palette[3]).pack()
 
     def show(self):
         self.place(x=20, y=20)
