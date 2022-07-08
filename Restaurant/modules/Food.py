@@ -59,7 +59,12 @@ class Food:
                 if data_base_food[0] == food_obj.food_id:
                     food_obj.amount = data_base_food[5]
                     break
-
+    
+    @classmethod
+    def delete_food(cls, food, db):
+        cls.food_list.remove(food)
+        db.delete_food(food.food_id)
+        
     def __repr__(self) -> str:
         return f"Food obj | id = {self.food_id}, \
         name = {self.name}, price = {self.price}, \
