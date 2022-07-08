@@ -76,10 +76,8 @@ def main(root, color_palette, _admin:UserAndManager.Manager):
 
     #food menu
 
-    financial_page = GUI_manager_Food_menu.Food_menu_panel(main_frame, color_palette, admin)
+    financial_page = GUI_manager_Food_menu.Food_menu_panel(main_frame, color_palette, admin, inventory_page)
     pages["food_menu"] = financial_page
-
-    
 
 class Profile_info():
     def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):

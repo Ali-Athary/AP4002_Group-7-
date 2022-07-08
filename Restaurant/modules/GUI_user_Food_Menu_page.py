@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 import os
 import sys
 import jdatetime
+from modules import Food, functions, UserAndManager
 
 class Food_item_UI_images():
     def __init__(self):
@@ -40,10 +41,11 @@ class Food_menu_panel(tkinter.Label):
 
         self.item_ui_image = Food_item_UI_images()
 
-        for i in range(20):
-            self.add_food_to_list("پیتزا پپرونی", 140000)
+        food_list = Food.Food.food_list
+        for food in food_list:
+            self.add_food_to_list(food)
 
-    def add_food_to_list(self, name, price):
+    def add_food_to_list(self, food:Food.Food):
         #item frame
 
         frame = tkinter.Frame(self.food_frame.scrollable_frame, width=980, height=200, bg=self.color_palette[3])
@@ -64,14 +66,14 @@ class Food_menu_panel(tkinter.Label):
 
         #name
 
-        tkinter.Label(frame, text=name, fg="white", bg=self.color_palette[2], font=font_dasnevis_2).place(x=940, y=30, anchor=tkinter.NE)
+        tkinter.Label(frame, text=food.name, fg="white", bg=self.color_palette[2], font=font_dasnevis_2).place(x=940, y=30, anchor=tkinter.NE)
 
         #price 
 
         price_frame = tkinter.Frame(frame, width=160, height=40, bg=self.color_palette[2])
         price_frame.place(x=940, y=120, anchor=tkinter.NE)
 
-        tkinter.Label(price_frame, text=f"{str(int(price))[:-3]},{str(int(price))[-3:]}", fg="white",
+        tkinter.Label(price_frame, text=functions.turn_int_to_price(food.price), fg="white",
          bg=self.color_palette[2], font=font_dasnevis_0).grid(row=0, column=1)
         tkinter.Label(price_frame, text="تومان", fg="white",
          bg=self.color_palette[2], font=font_dasnevis_0).grid(row=0, column=0, padx=6)
@@ -82,7 +84,7 @@ class Food_menu_panel(tkinter.Label):
         descriptiona_frame.pack_propagate(0)
         descriptiona_frame.place(x=740, y=40, anchor=tkinter.NE)
 
-        ingrediente = ["گوشت، پنیر، قارچ، پپرونی", "سس مخصوص، خمیر مخصوص"]
+        ingrediente = food.discription
 
         f = tkinter.Frame(descriptiona_frame, bg=self.color_palette[2])
         f.pack(expand=True, fill="none")
@@ -99,7 +101,7 @@ class Food_menu_panel(tkinter.Label):
 
         #number left
 
-        left = 10
+        left = food.amount
 
         left_label = tkinter.Label(frame, text=f"تعداد {left} عدد باقی مانده", font=font_dasnevis_0, fg="white", bg=self.color_palette[2])
         left_label.place(x=330, y=100, anchor=tkinter.CENTER)
@@ -145,7 +147,7 @@ class Food_menu_panel(tkinter.Label):
 
         #image
 
-        food_img = Image.open(os.path.join(sys.path[0], "resources\panels\\pitza.jpg")).convert("RGBA")
+        food_img = food.picture
         food_image = food_img.resize((200,200), Image.ANTIALIAS)
         mask_img = Image.open(os.path.join(sys.path[0], "resources\panels\\food_image_mask.png")).convert("RGBA")
         food_image.paste(mask_img, (0, 0), mask_img)

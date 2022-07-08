@@ -3,6 +3,7 @@ from PIL import Image
 from modules import Food
 from modules import val_functions
 import sys , os
+from io import BytesIO
 
 class Manager:
     def __init__(self, personal_id, name, l_name, 
@@ -13,9 +14,11 @@ class Manager:
         self.id = id
         self.email = email
         self.phone = phone 
+        #self.picture = Image.open(BytesIO(picture))
         self.picture = DataBase.DB.bin_to_image(picture)
         if(self.picture == None):
             self.picture = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")
+        #self.picture.show()
         if isinstance(db, DataBase.DB):
             self.db = db
         Food.Food.load_foods(self.db)

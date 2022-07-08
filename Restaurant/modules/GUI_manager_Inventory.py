@@ -24,6 +24,7 @@ class Food_inventory_panel(tkinter.Label):
     def __init__(self, root, color_palette, _admin:UserAndManager.Manager):
         global admin
         admin = _admin
+        self.food_items = []
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\user_food_menu_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
@@ -41,17 +42,15 @@ class Food_inventory_panel(tkinter.Label):
         self.food_frame = Food_Item_ScrollableFrame(self, color_palette)
         self.food_frame.place(x=20, y=100)
 
-        self.item_ui_image = Food_item_UI_images()
-
-        food_list = Food.Food.food_list
-        for food in food_list:
-            self.add_food_to_list(food)
+        self.update_menu()
 
     def add_food_to_list(self, food:Food.Food):
         #item frame
 
         frame = tkinter.Frame(self.food_frame.scrollable_frame, width=980, height=200, bg=self.color_palette[3])
         frame.pack()
+
+        self.food_items.append(frame)
 
         #background
 
@@ -162,6 +161,16 @@ class Food_inventory_panel(tkinter.Label):
         image_label = tkinter.Label(frame, image=food_image_with_mask, highlightthickness=0, bd=0)
         image_label.image = food_image_with_mask
         image_label.place(x=0,y=0)
+
+    def update_menu(self):
+        for frame in self.food_items:
+            frame.pack_forget()
+        self.food_items = []
+        self.item_ui_image = Food_item_UI_images()
+
+        food_list = Food.Food.food_list
+        for food in food_list:
+            self.add_food_to_list(food)
 
     def show(self):
         self.place(x=20, y=20)

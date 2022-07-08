@@ -373,7 +373,6 @@ class DB:
         ''', (food_id, ))
         self.con.commit()
 
-
     def get_table_data(self, table):
         table = self.cur.execute(f'''
             SELECT * FROM {table}
@@ -442,11 +441,11 @@ class DB:
     @staticmethod
     def image_to_bin(image: Image.Image):
         try:
-            image.save(os.path.join(sys.path[0], "database\\temp.jpg"))
-            with open(os.path.join(sys.path[0], "database\\temp.jpg"), 'rb') as file:
+            image.save('temp.jpg')
+            with open('temp.jpg', 'rb') as file:
                 bin_image = file.read()
-            os.system('del ' + os.path.join(sys.path[0], "database\\temp.jpg"))
-            os.system('rm ' + os.path.join(sys.path[0], "database\\temp.jpg"))
+            os.system('del temp.jpg')
+            os.system('rm temp.jpg')
             return bin_image
         except TypeError:
             return None
