@@ -15,9 +15,11 @@ class Item_UI_images():
         self.delete = ImageTk.PhotoImage(delete_img.resize((64,64), Image.ANTIALIAS))
 
 class Food_menu_panel(tkinter.Label):
-    def __init__(self, root, color_palette, _admin:UserAndManager.Manager):
+    def __init__(self, root, color_palette, _admin:UserAndManager.Manager, inventory_page):
         global admin
         admin = _admin
+        self.inventory_page = inventory_page
+        self.food_items = []
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\user_food_menu_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
@@ -46,6 +48,8 @@ class Food_menu_panel(tkinter.Label):
 
         frame = tkinter.Frame(self.food_frame.scrollable_frame, width=980, height=200, bg=self.color_palette[3])
         frame.pack()
+
+        self.food_items.append(frame)
 
         #background
 
@@ -118,6 +122,11 @@ class Food_menu_panel(tkinter.Label):
         image_label.place(x=200,y=0)
 
     def update_menu(self):
+        self.inventory_page.update_menu()
+    
+        for frame in self.food_items:
+            frame.pack_forget()
+        self.food_items = []
         self.item_ui_image = Item_UI_images()
 
         food_list = Food.Food.food_list
@@ -175,30 +184,40 @@ class Add_food_panel(tkinter.Frame):
          font=font2, highlightcolor=self.color_palette[4], highlightthickness=0, bd=0)
         name_entry.grid(row=1, column=0, padx=8, pady=4)
 
+        #orginal price
+
+        tkinter.Label(frame, text="قیمت تمام شده (تومان)", font=font1, bg=self.color_palette[3]).grid(row=2, column=1, padx=8, pady=4)
+        
+        orginal_price_var = tkinter.StringVar() 
+        orginal_price_entry = tkinter.Entry(frame, textvariable=orginal_price_var,  width=22,
+         font=font2, highlightcolor=self.color_palette[4], highlightthickness=0, bd=0)
+        orginal_price_entry.grid(row=2, column=0, padx=8, pady=4)
+
+
         #price
 
-        tkinter.Label(frame, text="قیمت (تومان)", font=font1, bg=self.color_palette[3]).grid(row=2, column=1, padx=8, pady=4)
+        tkinter.Label(frame, text="قیمت عرضه (تومان)", font=font1, bg=self.color_palette[3]).grid(row=3, column=1, padx=8, pady=4)
         
         price_var = tkinter.StringVar()
         price_entry = tkinter.Entry(frame, textvariable=price_var,  width=22,
          font=font2, highlightcolor=self.color_palette[4], highlightthickness=0, bd=0)
-        price_entry.grid(row=2, column=0, padx=8, pady=4)
+        price_entry.grid(row=3, column=0, padx=8, pady=4)
 
         #description and ingredients
 
-        tkinter.Label(frame, text="توضیحات خط اول", font=font1, bg=self.color_palette[3]).grid(row=3, column=1, padx=8, pady=4)
+        tkinter.Label(frame, text="توضیحات خط اول", font=font1, bg=self.color_palette[3]).grid(row=4, column=1, padx=8, pady=4)
         
         description1_var = tkinter.StringVar()
         description1_entry = tkinter.Entry(frame, textvariable=description1_var,  width=22, justify=tkinter.RIGHT,
          font=font2, highlightcolor=self.color_palette[4], highlightthickness=0, bd=0)
-        description1_entry.grid(row=3, column=0, padx=8, pady=4)
+        description1_entry.grid(row=4, column=0, padx=8, pady=4)
 
-        tkinter.Label(frame, text="توضیحات خط دوم", font=font1, bg=self.color_palette[3]).grid(row=4, column=1, padx=8, pady=4)
+        tkinter.Label(frame, text="توضیحات خط دوم", font=font1, bg=self.color_palette[3]).grid(row=5, column=1, padx=8, pady=4)
         
         description2_var = tkinter.StringVar()
         description2_entry = tkinter.Entry(frame, textvariable=description2_var,  width=22, justify=tkinter.RIGHT,
          font=font2, highlightcolor=self.color_palette[4], highlightthickness=0, bd=0)
-        description2_entry.grid(row=4, column=0, padx=8, pady=4)
+        description2_entry.grid(row=5, column=0, padx=8, pady=4)
 
         #choose picture
 
@@ -210,9 +229,9 @@ class Add_food_panel(tkinter.Frame):
                     #("image", ".png"),
                     ("image", ".jpg"),
                 ])
-            picture = Image.open(file_directory)
+            picture = Image.open(file_directory).resize((200,200), Image.ANTIALIAS)
 
-        tkinter.Label(frame, text="انتخاب تصویر", font=font1, bg=self.color_palette[3]).grid(row=5, column=1, padx=8, pady=4)
+        tkinter.Label(frame, text="انتخاب تصویر", font=font1, bg=self.color_palette[3]).grid(row=6, column=1, padx=8, pady=4)
 
         choose_img = Image.open(os.path.join(sys.path[0], "resources\icons\choose.png"))
         picture_image = ImageTk.PhotoImage(choose_img)
@@ -220,12 +239,12 @@ class Add_food_panel(tkinter.Frame):
         choose_picture_button = tkinter.Button(frame, image=picture_image, bg=self.color_palette[3],
          activebackground=self.color_palette[3], highlightthickness=0, bd=0, command=lambda:choose_picture())
         choose_picture_button.image = picture_image
-        choose_picture_button.grid(row=5, column=0, padx=8, pady=4)
+        choose_picture_button.grid(row=6, column=0, padx=8, pady=4)
 
         #error massage
 
-        error_message = tkinter.Label(frame, text=" \n ", font=font2, fg=self.color_palette[2], bg=self.color_palette[3])
-        error_message.grid(row=6, column=0, columnspan=2, padx=8, pady=4)
+        error_message = tkinter.Label(frame, text="  ", font=font2, fg=self.color_palette[2], bg=self.color_palette[3])
+        error_message.grid(row=7, column=0, columnspan=2, padx=8, pady=0)
 
         #confirm button
 
@@ -252,7 +271,7 @@ class Add_food_panel(tkinter.Frame):
         confirm_button = tkinter.Button(frame, image=confirm_image, bg=self.color_palette[3],
          highlightthickness=0, bd=0, activebackground=self.color_palette[3], command=confirm)
         confirm_button.image = confirm_image
-        confirm_button.grid(row=7, column=1, padx=8, pady=4)
+        confirm_button.grid(row=8, column=1, padx=8, pady=0)
 
         close_img = Image.open(os.path.join(sys.path[0], "resources\icons\close.png"))
         close_image = ImageTk.PhotoImage(close_img)
@@ -260,7 +279,7 @@ class Add_food_panel(tkinter.Frame):
         close_button = tkinter.Button(frame, image=close_image, bg=self.color_palette[3],
          highlightthickness=0, bd=0, activebackground=self.color_palette[3], command=close)
         close_button.image = close_image
-        close_button.grid(row=7, column=0, padx=8, pady=4)
+        close_button.grid(row=8, column=0, padx=8, pady=0)
 
     def show(self):
         self.place(x=0, y=0)
