@@ -542,7 +542,7 @@ class DB:
         user_id = self.get_user_id(email)
         self.cur.execute(
             f'''
-            UPDATE {user_id}__order_log
+            UPDATE {user_id}_order_log
             SET confirm = 1
             WHERE purchase_number = ?
             ''', (purchase_number)

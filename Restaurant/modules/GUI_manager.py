@@ -4,7 +4,7 @@ from PIL import ImageTk, Image
 import os
 import sys
 from modules import GUI_manager_Inventory, GUI_restaurant_Profile, GUI_user_Profile, GUI_manager_Orders
-from modules import GUI_manager_Financial, GUI_manager_Food_menu, UserAndManager
+from modules import GUI_manager_Financial, GUI_manager_Food_menu, UserAndManager, GUI_manager_Discount
 pages = {}
 active_page_name = ""
 
@@ -74,10 +74,15 @@ def main(root, color_palette, _admin:UserAndManager.Manager):
     financial_page = GUI_manager_Financial.Information_panel(main_frame, color_palette, admin)
     pages["financial"] = financial_page
 
-    #food menu
+    #food menu panel
 
     food_menu_page = GUI_manager_Food_menu.Food_menu_panel(main_frame, color_palette, admin, inventory_page)
     pages["food_menu"] = food_menu_page
+
+    #discount panel
+
+    discount_page = GUI_manager_Discount.Discount_panel(main_frame, color_palette, admin)
+    pages["discount"] = discount_page
 
 class Profile_info():
     def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):
@@ -152,7 +157,7 @@ class Right_menu(tkinter.Frame):
         #discaounts button
 
         discaounts_button = tkinter.Button(button_frame, text="تخفیف ها", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("suggestion"))
+         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("discount"))
         discaounts_button.pack(pady=6)
 
     def update_info(self):
