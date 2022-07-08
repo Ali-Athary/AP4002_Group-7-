@@ -77,8 +77,8 @@ class Manager:
         self.restaurant_address = row[3]
         self.restaurant_menu = self.db.bin_to_image(row[4])
 
-    def create_food(self, name, price, discription1, discription2, picture : Image.Image):
-        Food.Food.add_food(name, int(price), picture,
+    def create_food(self, name, price, original_price, discription1, discription2, picture : Image.Image):
+        Food.Food.add_food(name, int(price), int(original_price), picture,
             discription1, discription2, self.db)
     
     def change_food_amount(self, food : Food.Food, count):
@@ -93,6 +93,64 @@ class Manager:
     def create_discount_code(self, code, value):
         self.db.add_discount_code(code, value)
     
+    def get_today_order_log(self, date):
+        return self.db.today_order_log(date)
+    
+    def get_confirmed_orders(self):
+        name_and_email = self.db.get_user_name_email_list()
+        full_orders_list = []
+        for name, email in name_and_email:
+            orders = self.db.get_user_log(email)
+            for order in orders:
+                if order.confirm == 1:
+                    full_order = Food.FullOrderLog(
+                        order.food_log_list,
+                        order.total_price,
+                        order.original_price,
+                        order.date,
+                        email, name, confirm= order.confirm,
+                        purchase_number= order.purchase_number
+                    )
+                    full_orders_list.append(full_order)
+        return sorted(full_orders_list, key = lambda x : x.date)
+    
+    def get_not_confirmed_orders(self):
+        name_and_email = self.db.get_user_name_email_list()
+        full_orders_list = []
+        for name, email in name_and_email:
+            orders = self.db.get_user_log(email)
+            for order in orders:
+                if order.confirm == 0:
+                    full_order = Food.FullOrderLog(
+                        order.food_log_list,
+                        order.total_price,
+                        order.original_price,
+                        order.date,
+                        email, name, confirm= order.confirm
+                    )
+                    full_orders_list.append(full_order)
+        return sorted(full_orders_list, key = lambda x : x.date)
+    
+    def get_all_orders(self):
+        name_and_email = self.db.get_user_name_email_list()
+        full_orders_list = []
+        for name, email in name_and_email:
+            orders = self.db.get_user_log(email)
+            for order in orders:
+                full_order = Food.FullOrderLog(
+                    order.food_log_list,
+                    order.total_price,
+                    order.original_price,
+                    order.date,
+                    email, name, confirm= order.confirm
+                )
+                full_orders_list.append(full_order)
+        return sorted(full_orders_list, key = lambda x : x.date)
+    
+    def confirm_order(self, full_order : Food.FullOrderLog):
+        self.db.confirm_order(full_order.user_email, 
+            full_order.purchase_number)
+
 class User:
     def __init__(self, name, l_name, id, email, phone, picture : bytes, user_id, db):
         self.name = name 
@@ -117,7 +175,7 @@ class User:
         if food.amount - count < 0:
             return 'ناموفق'
         food.amount -= count
-        self.last_order.append(Food.FoodLog(food.food_id, food.name, date , count, food.price))
+        self.last_order.append(Food.FoodLog(food.food_id, food.name, date , count, food.price, food.original_price))
         self.total_price = self.get_total_price()
         return 0
 
@@ -134,7 +192,7 @@ class User:
             if index not in i:
                 temp_food.append(food)
                 
-        order_log = Food.OrderLog(temp_food, self.get_total_price(), date, self.off_code, self.db.use_discount(self.off_code))
+        order_log = Food.OrderLog(temp_food, self.get_total_price(), self.get_orginal_price(), date, self.off_code, self.db.use_discount(self.off_code))
         self.db.update_user_log(self.email, order_log)
         self.order_log = self.db.get_user_log()
         self.last_order = []
@@ -148,7 +206,7 @@ class User:
                 last_order = _[1]
                 break
         last_order = last_order.split('|')
-        if len(last_order) == 1:
+        if last_order == ['']:
             return []
         else:
             return list(map(lambda x: Food.FoodLog(*x.split('$')), last_order))
@@ -174,6 +232,12 @@ class User:
         x = 0
         for _ in self.last_order:
             x += _.count * _.price
+        return x
+    
+    def get_orginal_price(self):
+        x = 0
+        for _ in self.last_order:
+            x += _.count * _.original_price
         return x
 
     def purchasable_price(self):

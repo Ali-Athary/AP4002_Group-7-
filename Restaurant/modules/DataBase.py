@@ -37,6 +37,7 @@ class DB:
                 food_id INTEGER,
                 name TEXT, 
                 price INTEGER, 
+                orginal_price INTEGER,
                 picture BLOB, 
                 discription TEXT,
                 count INTEGER
@@ -140,16 +141,19 @@ class DB:
             food_id TEXT,
             date TEXT,
             count INTEGER,
-            price INTEGER
+            price INTEGER,
+            original_price INTEGER
         )
         ''')
         self.cur.execute(f'''
         CREATE TABLE {user_id}_order_log(
             purchase_number INTEGER,
             total_price INTEFER,
+            orginal_price INTEGER,
             off_code TEXT,
             off_value INTEGER,
-            date TEXT
+            date TEXT,
+            confirm INTEGER
         )
         ''')
         self.cur.execute('''
@@ -257,14 +261,14 @@ class DB:
         else:
             return 1 # not successfull
         
-    def create_food(self, food_id, name, price, picture, discription1, discription2, count):
+    def create_food(self, food_id, name, price, original_price, picture, discription1, discription2, count):
         discription = self.discription_list_to_str(discription1, discription2)
         picture = self.image_to_bin(picture)
         self.cur.execute('''
             INSERT INTO food VALUES(
-                ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?
             )
-        ''', (food_id, name, price, picture, discription, count))
+        ''', (food_id, name, price, original_price, picture, discription, count))
         self.con.commit()
 
     def change_food_amount(self, food_id, changes : int):
@@ -305,11 +309,11 @@ class DB:
         food_list = []
         table = self.get_table_data('food')
         for _ in table:
-            food_list.append(Food.Food(_[0], _[1], _[2], 
-            self.bin_to_image(_[3]), 
-            self.discription_str_to_list(_[4])[0], 
-            self.discription_str_to_list(_[4])[1],
-            _[5]))
+            food_list.append(Food.Food(_[0], _[1], _[2], _[3], 
+            self.bin_to_image(_[4]), 
+            self.discription_str_to_list(_[5])[0], 
+            self.discription_str_to_list(_[5])[1],
+            _[6]))
         return food_list
     
     def get_user_log(self, email):
@@ -332,7 +336,7 @@ class DB:
                     food_list.append(Food.FoodLog(*record[1:]))
             for order in temp_list_orders:
                 if order[0] == i:
-                    log_list.append(Food.OrderLog(food_list, order[1], order[2], order[3], order[4]))
+                    log_list.append(Food.OrderLog(food_list, order[1], order[2], order[3], order[4], order[5], order[6], order[0]))
             
         return log_list
         # returns a list that includes orderlog objects 
@@ -353,7 +357,7 @@ class DB:
             (
                 ?, ?, ?, ?, ?
             )
-        """, (p_n_max + 1, order_log.total_price, order_log.off_code, order_log.off_value, order_log.date))
+        """, (p_n_max + 1, order_log.total_price, order_log.original_price, order_log.off_code, order_log.off_value, order_log.date, order_log.confirm))
         for food in order_log.food_log_list:
             self.cur.execute(f'''
                 INSERT INTO {user_id}_food_log VALUES(
@@ -448,12 +452,7 @@ class DB:
     @staticmethod
     def bin_to_image(bin : bytes):
         try:
-            with open('temp.jpg', 'wb') as file:
-                file.write(bin)
-            image = Image.open('temp.jpg')
-            os.system('del temp.jpg')
-            os.system('rm temp.jpg')
-            return image
+            return Image.open(BytesIO(bin))
         except TypeError:
             return None
 
@@ -513,3 +512,46 @@ class DB:
             if _[1] == 0:
                 opinions.append(_[0])
         return opinions
+    
+    def confirm_order(self, email, purchase_number):
+        user_id = self.get_user_id(email)
+        self.cur.execute(
+            f'''
+            UPDATE {user_id}__order_log
+            SET confirm = 1
+            WHERE purchase_number = ?
+            ''', (purchase_number)
+        )
+        ...
+        self.con.commit()
+    
+    def today_order_log(self, date):
+        total_price = 0
+        total_original_price = 0
+        total_discount = 0
+        temp_list = []
+        user_table = self.get_table_data('user')
+        for row in user_table:
+            email = row[3]
+            for log in self.get_user_log(email):
+                if log.date == date:
+                    total_price += log.total_price
+                    total_original_price += log.original_price
+                    total_discount += log.off_value
+                    for food_log in log.food_log_list:
+                        for _ in temp_list:
+                            if _.food_id == food_log.food_id:
+                                _.count += food_log.count
+                                break
+                        else:
+                            temp_list.append(food_log)        
+        return Food.OrderLog(temp_list, total_price, 
+            total_original_price, date,
+            off_value = total_discount)
+
+    def get_user_name_email_list(self):
+        temp = []
+        table = self.get_table_data('user')
+        for row in table:
+            temp.append((row[0], row[3]))
+        return temp
