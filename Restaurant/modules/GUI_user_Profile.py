@@ -185,6 +185,9 @@ class Profile_panel(tkinter.Label):
         change_passwword_button.image = change_passwword_image
         change_passwword_button.grid(row=6, column=1, padx=8)
 
+    def update_page(self):
+        pass
+
     def show(self):
         self.place(x=20, y=20)
 

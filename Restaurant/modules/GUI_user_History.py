@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 import os
 import sys
 import jdatetime
+from modules import Food, functions, UserAndManager
 
 class History_Item_UI_images():
     def __init__(self) -> None:
@@ -11,7 +12,9 @@ class History_Item_UI_images():
         self.header  = ImageTk.PhotoImage(header_img)
         
 class History_panel(tkinter.Label):
-    def __init__(self, root, color_palette):
+    def __init__(self, root, color_palette, _user:UserAndManager.User):
+        global user 
+        user = _user
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\simple_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
@@ -26,12 +29,10 @@ class History_panel(tkinter.Label):
         self.item_frame = Item_ScrollableFrame(self, color_palette)
         self.item_frame.place(x=20, y=20)
 
-        for i in range(4):
-            self.Add_cart_item("1401/04/1", [1,2,3])
+        self.items = []
 
-        tkinter.Frame(self.item_frame.scrollable_frame, width=980, height=140, bg=self.color_palette[3]).pack()
 
-    def Add_cart_item(self, date, items):
+    def Add_cart_item(self, log:Food.OrderLog):
         # farme for items in each day
 
         frame = tkinter.Frame(self.item_frame.scrollable_frame, width=980, height=400, bg=self.color_palette[3])
@@ -61,7 +62,7 @@ class History_panel(tkinter.Label):
         
         tkinter.Label(date_frame, text="تاریخ خرید", bg=self.color_palette[4], font=date_font1).pack(side=tkinter.RIGHT)
         tkinter.Label(date_frame, text=":", bg=self.color_palette[4], font=date_font1).pack(side=tkinter.RIGHT, padx=8)
-        tkinter.Label(date_frame, text=date, bg=self.color_palette[4], font=date_font2).pack(side=tkinter.RIGHT)
+        tkinter.Label(date_frame, text=log.date, bg=self.color_palette[4], font=date_font2).pack(side=tkinter.RIGHT)
 
         # general info
 
@@ -77,7 +78,7 @@ class History_panel(tkinter.Label):
         price_frame.pack()
         tkinter.Label(price_frame, text="قیمت کل", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
         tkinter.Label(price_frame, text=":", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-        tkinter.Label(price_frame, text="236،217", font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(price_frame, text=functions.turn_int_to_price(log.total_price), font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
         tkinter.Label(price_frame, text="تومان", font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
 
         # discaount
@@ -88,13 +89,13 @@ class History_panel(tkinter.Label):
 
         tkinter.Label(discaount_frame, text="کد تخفیف", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
         tkinter.Label(discaount_frame, text=":", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-        tkinter.Label(discaount_frame, text="AS2D23", font=font_English, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(discaount_frame, text=log.off_code, font=font_English, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
 
         tkinter.Label(discaount_frame, text="", font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=40)
 
         tkinter.Label(discaount_frame, text="مقدار تخفیف", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
         tkinter.Label(discaount_frame, text=":", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-        tkinter.Label(discaount_frame, text="25،000", font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(discaount_frame, text=log.off_value, font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
         tkinter.Label(discaount_frame, text="تومان", font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
 
         # final price
@@ -105,7 +106,7 @@ class History_panel(tkinter.Label):
 
         tkinter.Label(final_price_frame, text="قیمت نهای (با احتساب تخفیف)", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
         tkinter.Label(final_price_frame, text=":", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-        tkinter.Label(final_price_frame, text="211،217", font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(final_price_frame, text=functions.turn_int_to_price(log.total_price - log.off_value), font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
         tkinter.Label(final_price_frame, text="تومان", font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
 
         # column name
@@ -132,29 +133,40 @@ class History_panel(tkinter.Label):
 
         # purchase items
 
-        for item in items:
-            # item frame
+        for item in log.food_log_list:
+            if(isinstance(item, Food.FoodLog)):
+                # item frame
 
-            item_frame = tkinter.Frame(frame, width=960, height=60, bg=self.color_palette[4],
-             highlightbackground=self.color_palette[2], highlightthickness=2)
-            item_frame.pack_propagate(0)
-            item_frame.pack(pady=6)
+                item_frame = tkinter.Frame(frame, width=960, height=60, bg=self.color_palette[4],
+                highlightbackground=self.color_palette[2], highlightthickness=2)
+                item_frame.pack_propagate(0)
+                item_frame.pack(pady=6)
 
-            tkinter.Label(item_frame, text="سیب زمینی سرخ کرده", font=font2, width=12,
-             bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-            tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
-            tkinter.Label(item_frame, text="62،324", font=font2, width=10,
-             bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-            tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
-            tkinter.Label(item_frame, text="2", font=font2, width=8,
-             bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-            tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
-            tkinter.Label(item_frame, text="123،456", font=font2, width=12,
-             bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-            tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
-            tkinter.Label(item_frame, text="1401/4/4", font=font2, width=10,
-             bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+                tkinter.Label(item_frame, text=item.name, font=font2, width=12,
+                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+                tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+                tkinter.Label(item_frame, text=functions.turn_int_to_price(item.price), font=font2, width=10,
+                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+                tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+                tkinter.Label(item_frame, text=item.count, font=font2, width=8,
+                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+                tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+                tkinter.Label(item_frame, text=functions.turn_int_to_price(item.count * item.price), font=font2, width=12,
+                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+                tkinter.Label(item_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+                tkinter.Label(item_frame, text=item.date, font=font2, width=10,
+                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
             
+    def update_page(self):
+        for item in self.items:
+            item.pack_forget()
+        self.items = []
+
+        log_list = user.get_order_log()
+        for log in log_list:
+            self.Add_cart_item(log)
+
+        tkinter.Frame(self.item_frame.scrollable_frame, width=980, height=140, bg=self.color_palette[3]).pack()
 
     def show(self):
         self.place(x=20, y=20)

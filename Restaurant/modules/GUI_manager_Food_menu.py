@@ -249,9 +249,10 @@ class Add_food_panel(tkinter.Frame):
         #confirm button
 
         def confirm():
-            admin.create_food(name_var.get(), price_var.get(), description1_var.get(),
+            admin.create_food(name_var.get(), price_var.get(),  orginal_price_var.get(), description1_var.get(),
              description2_var.get(), picture)
             name_var.set("")
+            orginal_price_var.set("")
             price_var.set("")
             description1_var.set("")
             description2_var.set("")
@@ -260,6 +261,7 @@ class Add_food_panel(tkinter.Frame):
 
         def close():
             name_var.set("")
+            orginal_price_var.set("")
             price_var.set("")
             description1_var.set("")
             description2_var.set("")

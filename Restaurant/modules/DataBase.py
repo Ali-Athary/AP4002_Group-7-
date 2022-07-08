@@ -139,6 +139,7 @@ class DB:
         CREATE TABLE {user_id}_food_log(
             purchase_number INTEGER,
             food_id TEXT,
+            name TEXT,
             date TEXT,
             count INTEGER,
             price INTEGER,
@@ -150,9 +151,9 @@ class DB:
             purchase_number INTEGER,
             total_price INTEFER,
             orginal_price INTEGER,
+            date TEXT,
             off_code TEXT,
             off_value INTEGER,
-            date TEXT,
             confirm INTEGER
         )
         ''')
@@ -329,10 +330,10 @@ class DB:
         for i in temp_list_foods:
             if i[0] > p_n_max:
                 p_n_max = i[0]
-        for i in range(p_n_max, 0):
+        for i in range(p_n_max, 0, -1):
             food_list = []
             for record in temp_list_foods:
-                if record(0) == i:
+                if record[0] == i:
                     food_list.append(Food.FoodLog(*record[1:]))
             for order in temp_list_orders:
                 if order[0] == i:
@@ -355,15 +356,15 @@ class DB:
         self.cur.execute(f"""
             INSERT INTO {user_id}_order_log VALUES
             (
-                ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?
             )
-        """, (p_n_max + 1, order_log.total_price, order_log.original_price, order_log.off_code, order_log.off_value, order_log.date, order_log.confirm))
+        """, (p_n_max + 1, order_log.total_price, order_log.original_price, order_log.date, order_log.off_code, order_log.off_value, order_log.confirm))
         for food in order_log.food_log_list:
             self.cur.execute(f'''
                 INSERT INTO {user_id}_food_log VALUES(
-                    ?, ?, ?, ?, ?
+                    ?, ?, ?, ?, ?, ?, ?
                 )
-            ''', (p_n_max, food.food_id, food.name, food.date, food.count, food.price))
+            ''', (p_n_max, food.food_id, food.name, food.date, food.count, food.price, food.original_price))
 
         self.con.commit()
     
@@ -441,11 +442,11 @@ class DB:
     @staticmethod
     def image_to_bin(image: Image.Image):
         try:
-            image.save('temp.jpg')
-            with open('temp.jpg', 'rb') as file:
+            image.save(os.path.join(sys.path[0], "database\\temp.jpg"))
+            with open(os.path.join(sys.path[0], "database\\temp.jpg"), 'rb') as file:
                 bin_image = file.read()
-            os.system('del temp.jpg')
-            os.system('rm temp.jpg')
+            os.system('del ' + os.path.join(sys.path[0], "database\\temp.jpg"))
+            os.system('rm ' + os.path.join(sys.path[0], "database\\temp.jpg"))
             return bin_image
         except TypeError:
             return None

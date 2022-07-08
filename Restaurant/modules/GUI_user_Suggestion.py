@@ -55,6 +55,8 @@ class Suggestion_panel(tkinter.Label):
         text_box.place(x=960/2, y=30, anchor=tkinter.N)
         text_box.bind("<KeyRelease>", Right_to_Left)
 
+    def update_page(self):
+        pass
 
     def show(self):
         self.place(x=20, y=20)

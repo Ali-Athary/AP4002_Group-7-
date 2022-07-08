@@ -21,7 +21,10 @@ class Food_item_UI_images():
         self.buy = ImageTk.PhotoImage(buy_img)
 
 class Food_menu_panel(tkinter.Label):
-    def __init__(self, root, color_palette):
+    def __init__(self, root, color_palette, _user:UserAndManager.User, cart_page):
+        global user
+        user = _user
+        self.cart_page = cart_page
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\user_food_menu_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
@@ -31,8 +34,8 @@ class Food_menu_panel(tkinter.Label):
 
         #top bar
 
-        top_bar = Food_manu_top_bar(self, color_palette)
-        top_bar.show()
+        self.top_bar = Food_manu_top_bar(self, color_palette)
+        self.top_bar.show()
 
         #food items frame
 
@@ -40,6 +43,8 @@ class Food_menu_panel(tkinter.Label):
         self.food_frame.place(x=20, y=100)
 
         self.item_ui_image = Food_item_UI_images()
+
+        self.items = []
 
         food_list = Food.Food.food_list
         for food in food_list:
@@ -50,6 +55,8 @@ class Food_menu_panel(tkinter.Label):
 
         frame = tkinter.Frame(self.food_frame.scrollable_frame, width=980, height=200, bg=self.color_palette[3])
         frame.pack()
+
+        self.items.append(frame)
 
         #background
 
@@ -140,8 +147,18 @@ class Food_menu_panel(tkinter.Label):
 
         #buy button
 
+        def buy():
+            nonlocal count
+            nonlocal count_label, left_label
+            user.add_food_to_order_list(food, count, self.top_bar.get_date())
+            count = 0
+            count_label.configure(text=count)
+            left_label.configure(text=f"تعداد {food.amount} عدد باقی مانده")
+            self.cart_page.update_page()
+
+
         minus_button = tkinter.Button(frame, image=self.item_ui_image.buy, bg=self.color_palette[2],
-         highlightthickness=0, bd=0, activebackground=self.color_palette[2])
+         highlightthickness=0, bd=0, activebackground=self.color_palette[2], command=buy)
         minus_button.image = self.item_ui_image.buy
         minus_button.place(x=330, y=145, anchor=tkinter.CENTER)
 
@@ -156,6 +173,17 @@ class Food_menu_panel(tkinter.Label):
         image_label = tkinter.Label(frame, image=food_image_with_mask, highlightthickness=0, bd=0)
         image_label.image = food_image_with_mask
         image_label.place(x=0,y=0)
+
+    def update_page(self):
+        for item in self.items:
+            item.pack_forget()
+        self.items = []
+
+        self.item_ui_image = Food_item_UI_images()
+
+        food_list = Food.Food.food_list
+        for food in food_list:
+            self.add_food_to_list(food)
 
     def show(self):
         self.place(x=20, y=20)
@@ -227,6 +255,9 @@ class Food_manu_top_bar(tkinter.Frame):
          highlightthickness=0, bd=0)
         sreach_button.image = sreach_image
         sreach_button.pack(fill="none", expand=True) 
+
+    def get_date(self):
+        return f"{jdatetime.datetime.now().year}/{self.month_var.get()}/{self.day_var.get()}"
 
     def change_month(self):
         if(int(self.month_var.get()) == self.months[1]):
