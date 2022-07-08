@@ -45,7 +45,7 @@ class Profile_panel(tkinter.Label):
                     #("image", ".png"),
                     ("image", ".jpg"),
                 ])
-            user.change_profile_pic(Image.open(file_directory))
+            user.change_profile_pic(Image.open(file_directory).resize((256,256), Image.ANTIALIAS))
             picture_mask_image = Image.open(os.path.join(sys.path[0], "resources\panels\profile_page_picture_mask.png"))
             picture_img = user.picture
             picture_img = picture_img.resize((256,256), Image.ANTIALIAS)
