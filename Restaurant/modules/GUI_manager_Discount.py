@@ -48,18 +48,24 @@ class Discount_panel(tkinter.Label):
 
         code_var = tkinter.StringVar()
         tkinter.Entry(frame, textvariable=code_var, bg=color_palette[4], font=font_english,
-         highlightthickness=0, bd=0).place(x=340, y=230, anchor=tkinter.CENTER)
+         highlightthickness=0, bd=0).place(x=300, y=230, anchor=tkinter.CENTER)
+        tkinter.Label(frame, text="کد", bg=color_palette[3], font=font1,
+         highlightthickness=0, bd=0).place(x=580, y=230, anchor=tkinter.CENTER)
 
         #value
 
-        code_value = tkinter.StringVar()
-        tkinter.Entry(frame, textvariable=code_var, bg=color_palette[4], font=font_english,
-         highlightthickness=0, bd=0).place(x=340, y=310, anchor=tkinter.CENTER)
+        value_var = tkinter.StringVar()
+        tkinter.Entry(frame, textvariable=value_var, bg=color_palette[4], font=font_english,
+         highlightthickness=0, bd=0).place(x=300, y=310, anchor=tkinter.CENTER)
+        tkinter.Label(frame, text="مقدار", bg=color_palette[3], font=font1,
+         highlightthickness=0, bd=0).place(x=580, y=310, anchor=tkinter.CENTER)
 
         #submit
 
         def submit():
-            pass
+            admin.create_discount_code(code_var.get(), value_var.get())
+            code_var.set("")
+            value_var.set("")
 
         submit_img = Image.open(os.path.join(sys.path[0], "resources\icons\\confirm.png")).convert("RGBA")
         submit_image = ImageTk.PhotoImage(submit_img)
