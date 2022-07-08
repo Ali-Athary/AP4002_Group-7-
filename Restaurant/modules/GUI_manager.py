@@ -76,7 +76,7 @@ def main(root, color_palette, _admin:UserAndManager.Manager):
 
     #food menu
 
-    financial_page = GUI_manager_Food_menu.Food_menu_panel(main_frame, color_palette)
+    financial_page = GUI_manager_Food_menu.Food_menu_panel(main_frame, color_palette, admin)
     pages["food_menu"] = financial_page
 
     

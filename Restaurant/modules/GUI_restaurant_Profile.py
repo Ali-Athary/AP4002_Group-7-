@@ -165,8 +165,8 @@ class Profile_panel(tkinter.Label):
             
             first_name_var.set(admin.manager_name)
             last_name_var.set(admin.manager_last_name)
-            area_entry.set(admin.restaurant_district)
-            address_entry.set(admin.restaurant_address)
+            area_var.set(admin.restaurant_district)
+            address_var.set(admin.restaurant_address)
 
 
         eddit_img = Image.open(os.path.join(sys.path[0], "resources\icons\eddit.png"))

@@ -60,6 +60,7 @@ class Manager:
             if v2 == True:
                 self.db.update_restaurant_data(new_name, new_l_name,
                         new_district, new_addrss)
+                self.get_owner_data()
             else:
                 return v2
         else:
@@ -86,7 +87,6 @@ class Manager:
     def view_comments(self):
         ...
     
-
 class User:
     def __init__(self, name, l_name, id, email, phone, picture : bytes, user_id, db):
         self.name = name 

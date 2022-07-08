@@ -33,7 +33,7 @@ class DB:
             self.cur.execute('''
             CREATE TABLE food
             (
-                food_id INTEGER
+                food_id INTEGER,
                 name TEXT, 
                 price INTEGER, 
                 picture BLOB, 
@@ -258,7 +258,7 @@ class DB:
         
     def create_food(self, food_id, name, price, picture, discription1, discription2, count):
         discription = self.discription_list_to_str(discription1, discription2)
-        picture = self.image_to_array(picture)
+        picture = self.image_to_bin(picture)
         self.cur.execute('''
             INSERT INTO food VALUES(
                 ?, ?, ?, ?, ?, ?
@@ -305,7 +305,7 @@ class DB:
         table = self.get_table_data('food')
         for _ in table:
             food_list.append(Food.Food(_[0], _[1], _[2], 
-            self.array_to_image(_[3]), 
+            self.bin_to_image(_[3]), 
             self.discription_str_to_list(_[4])[0], 
             self.discription_str_to_list(_[4])[1],
             _[5]))
@@ -394,6 +394,7 @@ class DB:
         )
         self.con.commit()
 
+
     def update_menu(self, menu : Image.Image):
         self.cur.execute(
             '''
@@ -429,26 +430,26 @@ class DB:
     @staticmethod
     def image_to_bin(image: Image.Image):
         try:
-            image.save('database\\temp.jpg')
-            with open('database\\temp.jpg', 'rb') as file:
+            image.save(os.path.join(sys.path[0], "database\\temp.jpg"))
+            with open(os.path.join(sys.path[0], "database\\temp.jpg"), 'rb') as file:
                 bin_image = file.read()
-            os.system('del database\\temp.jpg')
-            os.system('rm database\\temp.jpg')
+            os.system('del ' + os.path.join(sys.path[0], "database\\temp.jpg"))
+            os.system('rm ' + os.path.join(sys.path[0], "database\\temp.jpg"))
             return bin_image
         except TypeError:
             return None
     @staticmethod
     def bin_to_image(bin : bytes):
         try:
-            with open('database\\temp.jpg', 'wb') as file:
+            with open(os.path.join(sys.path[0], "database\\temp.jpg"), 'wb') as file:
                 file.write(bin)
-            image = Image.open('database\\temp.jpg')
-            os.system('del database\\temp.jpg')
-            os.system('rm database\\temp.jpg')
+            image = Image.open(os.path.join(sys.path[0], "database\\temp.jpg"))
+            os.system('del ' + os.path.join(sys.path[0], "database\\temp.jpg"))
+            os.system('rm ' + os.path.join(sys.path[0], "database\\temp.jpg"))
             return image
         except TypeError:
             return None
-    
+
     def update_last_order(self, user_id, food_data):
         self.cur.execute('''
         UPDATE last_order
