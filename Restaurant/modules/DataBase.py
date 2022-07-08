@@ -122,6 +122,7 @@ class DB:
     
     def create_account(self, name, l_name, 
         id, phone, email : str, password):
+        'create a user account'
 
         # user_id is constant for all users
         user_id = email[:email.find('@')] + \
@@ -204,6 +205,7 @@ class DB:
         self.con.commit() 
 
     def get_user_obj(self, email, password):
+        'logging in to user account'
         user_id = self.cur.execute('''
         SELECT user_id FROM user WHERE email = ?
         ''', (email, )).fetchone()
@@ -224,6 +226,7 @@ class DB:
             return 'نام کاربری یا رمز عبور اشتباه است'
 
     def get_manager_obj(self, personal_id, password):
+        'logging in to manager account'
         user_pass = self.cur.execute('''
         SELECT password FROM admin WHERE personal_id = ?
         ''', (personal_id, )).fetchone()
@@ -236,6 +239,7 @@ class DB:
             return 'نام کاربری یا رمز عبور اشتباه است'
     
     def change_manager_info(self, personal_id, name, l_name, phone, email):
+        'change manager account info'
         self.cur.execute('''
             UPDATE admin
             SET name = ?,
@@ -247,6 +251,7 @@ class DB:
         self.con.commit()
 
     def change_manager_password(self, personal_id, password, new_pass):
+        'change manager acounts password'
         user_pass = self.cur.execute(
             '''
             SELECT password FROM admin WHERE personal_id = ?
@@ -263,6 +268,7 @@ class DB:
             return 1 # not successfull
         
     def create_food(self, food_id, name, price, original_price, picture, discription1, discription2, count):
+        'create a new food'
         discription = self.discription_list_to_str(discription1, discription2)
         picture = self.image_to_bin(picture)
         self.cur.execute('''
@@ -307,6 +313,7 @@ class DB:
                 return 0
 
     def get_foods_obj(self):
+        'get all food objs'
         food_list = []
         table = self.get_table_data('food')
         for _ in table:
@@ -318,6 +325,7 @@ class DB:
         return food_list
     
     def get_user_log(self, email):
+        'get all order log of an account'
         user_id = self.get_user_id(email)
         log_list = []
         temp_list_foods = self.cur.execute(f"""
@@ -330,7 +338,7 @@ class DB:
         for i in temp_list_foods:
             if i[0] > p_n_max:
                 p_n_max = i[0]
-        for i in range(p_n_max, 0, -1):
+        for i in range(p_n_max + 1, 0, -1):
             food_list = []
             for record in temp_list_foods:
                 if record[0] == i:
@@ -345,6 +353,7 @@ class DB:
         # list that includes foodlog objects  
     
     def update_user_log(self, email, order_log : Food.OrderLog):
+        'add a new order-log to db'
         user_id = self.get_user_id(email)
         temp = self.cur.execute(f"""
             SELECT * FROM {user_id}_order_log
@@ -369,12 +378,14 @@ class DB:
         self.con.commit()
     
     def delete_food(self, food_id):
+        'delete a food'
         self.cur.execute('''
         DELETE FROM food WHERE food_id = ?
         ''', (food_id, ))
         self.con.commit()
 
     def get_table_data(self, table):
+        'get a tables data'
         table = self.cur.execute(f'''
             SELECT * FROM {table}
             ''').fetchall()
@@ -382,11 +393,13 @@ class DB:
         return table
         
     def get_user_id(self, email):
+        'get user id of an account'
         return self.cur.execute('''
         SELECT user_id FROM user WHERE email = ?
         ''', (email, )).fetchone()[0]
     
     def update_user_profile(self, user_id, picture : Image.Image):
+        'update users profile'
         self.cur.execute(
             '''
             UPDATE user
@@ -397,6 +410,7 @@ class DB:
         self.con.commit()
     
     def update_manager_profile(self, personal_id, picture : Image.Image):
+        'update managers profile'
         self.cur.execute(
             '''
             UPDATE admin
@@ -408,6 +422,7 @@ class DB:
 
 
     def update_menu(self, menu : Image.Image):
+        'update menu pic'
         self.cur.execute(
             '''
             UPDATE restaurant_data
@@ -419,6 +434,7 @@ class DB:
     
     def update_restaurant_data(self, name, l_name,
             district, address):
+        'update restaurant data'
         self.cur.execute(
             '''
             UPDATE restaurant_data
@@ -431,6 +447,7 @@ class DB:
         self.con.commit()
 
     def close(self):
+        'close connection'
         self.con.close()
     
     @staticmethod
@@ -458,6 +475,7 @@ class DB:
             return None
 
     def update_last_order(self, user_id, food_data):
+        'update last order for the next session'
         self.cur.execute('''
         UPDATE last_order
         SET food_data = ?
@@ -465,11 +483,13 @@ class DB:
         ''', (food_data, user_id))
     
     def add_discount_code(self, code, value):
+        'add a new discount code'
         self.cur.execute('''
         INSERT INTO discount VALUES(?, ?)
         ''', (code, value))
 
     def get_discount_value(self, code):
+        'get the value of a discount code'
         value =  self.cur.execute('''
         SELECT off_value FROM discount WHERE 
         offcode = ?
@@ -478,6 +498,7 @@ class DB:
             return value[0]
 
     def use_discount(self, code) -> int:
+        'use the discount code'
         value = self.cur.execute('''
         SELECT off_value FROM discount WHERE 
         offcode = ?
@@ -491,6 +512,7 @@ class DB:
         return value[0]
 
     def add_opinion(self, text):
+        'add comment'
         self.cur.execute(
             '''
             INSERT INTO opinion VALUES(
@@ -501,6 +523,7 @@ class DB:
         self.con.commit()
 
     def view_opinion(self):
+        'view all new comments'
         table = self.get_table_data('opinion')
         self.cur.execute(
             '''
@@ -515,6 +538,7 @@ class DB:
         return opinions
     
     def confirm_order(self, email, purchase_number):
+        'confirm the order'
         user_id = self.get_user_id(email)
         self.cur.execute(
             f'''
@@ -527,6 +551,7 @@ class DB:
         self.con.commit()
     
     def today_order_log(self, date):
+        'get todays order logs'
         total_price = 0
         total_original_price = 0
         total_discount = 0
