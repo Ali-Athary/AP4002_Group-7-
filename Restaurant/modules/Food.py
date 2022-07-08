@@ -1,4 +1,4 @@
-import DataBase
+from modules import DataBase
 from PIL import Image
 
 class Food:
@@ -21,7 +21,7 @@ class Food:
         self.amount = int(amount)
 
     @classmethod
-    def add_food(cls, name, price, picture : Image.Image, discription1, discription2, db: DataBase.DB):
+    def add_food(cls, name, price, picture : Image.Image, discription1, discription2, db):
         'adds a new food to both list and data-base'
         food_id = 0
         for food in cls.food_list:
@@ -31,7 +31,7 @@ class Food:
         cls.food_list.insert(0, food)
         db.create_food(food_id + 1, name, price, picture, discription1, discription2, 0)
 
-    def update_food(self, changes, db: DataBase.DB):
+    def update_food(self, changes, db):
         'changes the amount of food'
         if db.change_food_amount(self.food_id, changes) == 0:
             if changes > 0:
@@ -46,12 +46,12 @@ class Food:
             return 'ناموفق'
 
     @classmethod
-    def load_foods(cls, db : DataBase.DB):
+    def load_foods(cls, db):
         'loads all foods and save the in cls.food_list'
         cls.food_list = db.get_foods_obj()
 
     @classmethod
-    def reload_foods(cls, db: DataBase.DB):
+    def reload_foods(cls, db):
         'reload all foods'
         food_table = db.get_table_data('food')
         for data_base_food in food_table:
@@ -79,8 +79,7 @@ class OrderLog:
         return f"OrderLog object | total price : {self.total_price}, date : {self.date} \n \
             food list : \n \
             {self.food_log_list}"
-    
-    
+      
 class FoodLog:
     'foodlog object is a food record that purchased or is in the last order'
     def __init__(self, food_id, name, date, count, price):

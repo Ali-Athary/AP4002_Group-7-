@@ -4,7 +4,7 @@ from PIL import ImageTk, Image
 import os
 import sys
 from modules import GUI_manager_Inventory, GUI_restaurant_Profile, GUI_user_Profile, GUI_manager_Orders
-from modules import GUI_manager_Financial, GUI_manager_Food_menu
+from modules import GUI_manager_Financial, GUI_manager_Food_menu, UserAndManager
 pages = {}
 active_page_name = ""
 
@@ -26,8 +26,10 @@ def change_page(name):
     active_page_name = name
 
 
-def main(root, color_palette):
+def main(root, color_palette, _admin:UserAndManager.Manager):
     global active_page_name, pages
+    global admin
+    admin = _admin
     set_profile_info()
 
     #main frame
@@ -46,7 +48,7 @@ def main(root, color_palette):
 
     # user profile
 
-    profile_page = GUI_user_Profile.Profile_panel(main_frame, color_palette)
+    profile_page = GUI_user_Profile.Profile_panel(main_frame, color_palette, admin, right_menu)
     pages["user_profile"] = profile_page
 
     active_page_name = "user_profile"
@@ -54,7 +56,7 @@ def main(root, color_palette):
 
     #restaurant profile panel
 
-    restaurant_Profile_page = GUI_restaurant_Profile.Profile_panel(main_frame, color_palette)
+    restaurant_Profile_page = GUI_restaurant_Profile.Profile_panel(main_frame, color_palette, admin)
     pages["restaurant_profile"] = restaurant_Profile_page
 
     #inventory panel
@@ -74,7 +76,7 @@ def main(root, color_palette):
 
     #food menu
 
-    financial_page = GUI_manager_Food_menu.Food_menu_panel(main_frame, color_palette)
+    financial_page = GUI_manager_Food_menu.Food_menu_panel(main_frame, color_palette, admin)
     pages["food_menu"] = financial_page
 
     
@@ -100,18 +102,19 @@ class Right_menu(tkinter.Frame):
         #profile picture
 
         profile_frame_image = Image.open(os.path.join(sys.path[0], "resources\panels\profile_photo_mask.png"))
-        profile_img = profile_info.image.resize((128,128), Image.ANTIALIAS)
+        profile_img = admin.picture.resize((128,128), Image.ANTIALIAS)
         profile_img.paste(profile_frame_image, (0, 0), profile_frame_image)
         profile_image = ImageTk.PhotoImage(profile_img)
-        profile_image_label = tkinter.Button(profile_frame, image=profile_image, bg=color_palette[4],
+        self.profile_image_label = tkinter.Button(profile_frame, image=profile_image, bg=color_palette[4],
          activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("user_profile"))
-        profile_image_label.image = profile_image
-        profile_image_label.pack()   
+        self.profile_image_label.image = profile_image
+        self.profile_image_label.pack()   
 
         #profile name
 
-        profile_image_label = tkinter.Button(profile_frame,text=profile_info.name, font=font1, bg=color_palette[4],
-         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("user_profile")).pack()
+        self.profile_image_label_name = tkinter.Button(profile_frame,text=admin.name + "\n" + admin.l_name, font=font1, bg=color_palette[4],
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("user_profile"))
+        self.profile_image_label_name.pack()
 
         #button frame
 
@@ -153,6 +156,16 @@ class Right_menu(tkinter.Frame):
         discaounts_button = tkinter.Button(button_frame, text="تخفیف ها", bg=color_palette[2], width=22, font=font1,
          activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("suggestion"))
         discaounts_button.pack(pady=6)
+
+    def update_info(self):
+        self.profile_image_label_name.configure(text=admin.name + "\n" + admin.l_name)
+
+        profile_frame_image = Image.open(os.path.join(sys.path[0], "resources\panels\profile_photo_mask.png"))
+        profile_img = admin.picture.resize((128,128), Image.ANTIALIAS)
+        profile_img.paste(profile_frame_image, (0, 0), profile_frame_image)
+        profile_image = ImageTk.PhotoImage(profile_img)
+        self.profile_image_label.configure(image = profile_image)
+        self.profile_image_label.image = profile_image
 
     def show(self):
         self.place(x=1090, y=40)

@@ -13,11 +13,15 @@ class App(tkinter.Tk):
 
         db = DataBase.DB(os.path.join(sys.path[0], "database/database.db"))
 
-        #GUI_log_in_and_sign_up.main(self, color_palette, db)
-        GUI_user.main(self, color_palette)
-        #GUI_manager.main(self, color_palette)
+        GUI_log_in_and_sign_up.main(self, color_palette, db)
 
         self.mainloop()        
+ 
+    def open_user_app(self, user):
+        GUI_user.main(self, color_palette, user)
+
+    def open_manager_app(self, admin):
+        GUI_manager.main(self, color_palette, admin)
 
 
 if __name__ == "__main__":

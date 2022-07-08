@@ -4,9 +4,10 @@ from PIL import ImageTk, Image
 import os
 import sys
 import jdatetime
+from modules import UserAndManager
 
 class Profile_panel(tkinter.Label):
-    def __init__(self, root, color_palette):
+    def __init__(self, root, color_palette, user:UserAndManager.User, right_menu):
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\simple_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
@@ -16,7 +17,7 @@ class Profile_panel(tkinter.Label):
         self.pack_propagate(0)
 
         font1 = font.Font(family="Mj_Flow", size=18)
-        font2 = font.Font(family="Dast Nevis", size=20)
+        font2 = font.Font(family="Dast Nevis", size=18)
         font_english = font.Font(family="Roboto", size=20)
 
         # profile picture
@@ -27,7 +28,7 @@ class Profile_panel(tkinter.Label):
         # picture image
 
         picture_mask_image = Image.open(os.path.join(sys.path[0], "resources\panels\profile_page_picture_mask.png"))
-        picture_img = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg"))
+        picture_img = user.picture
         picture_img = picture_img.resize((256,256), Image.ANTIALIAS)
         picture_img.paste(picture_mask_image, (0, 0), picture_mask_image)
         picture_image = ImageTk.PhotoImage(picture_img)
@@ -41,10 +42,18 @@ class Profile_panel(tkinter.Label):
         def choose_picture():
             file_directory = filedialog.askopenfilename(title='select', filetypes=[
                     ("image", ".jpeg"),
-                    ("image", ".png"),
+                    #("image", ".png"),
                     ("image", ".jpg"),
                 ])
-            print(file_directory)
+            user.change_profile_pic(Image.open(file_directory))
+            picture_mask_image = Image.open(os.path.join(sys.path[0], "resources\panels\profile_page_picture_mask.png"))
+            picture_img = user.picture
+            picture_img = picture_img.resize((256,256), Image.ANTIALIAS)
+            picture_img.paste(picture_mask_image, (0, 0), picture_mask_image)
+            picture_image = ImageTk.PhotoImage(picture_img) 
+            profile_image_label.configure(image=picture_image)
+            profile_image_label.image = picture_image
+            right_menu.update_info()
 
         tkinter.Label(picture_frame, text="تغییر تصویر", font=font1, bg=self.color_palette[3]).grid(row=1, column=1)
 
@@ -73,7 +82,7 @@ class Profile_panel(tkinter.Label):
         tkinter.Label(info_frame, text="نام", font=font1, bg=self.color_palette[3]).grid(row=0, column=1, padx=8, pady=8)
 
         first_name_var = tkinter.StringVar()
-        first_name_var.set("نام")
+        first_name_var.set(user.name)
         first_name_entry =tkinter.Entry(info_frame, textvariable=first_name_var, width=26, justify=tkinter.CENTER,
          font=font1, bg=self.color_palette[4], disabledforeground="black", disabledbackground=self.color_palette[3],
          highlightthickness=0, bd=0,  highlightbackground=self.color_palette[4], highlightcolor=self.color_palette[2])
@@ -85,7 +94,7 @@ class Profile_panel(tkinter.Label):
         tkinter.Label(info_frame, text="نام خانوادگی", font=font1, bg=self.color_palette[3]).grid(row=1, column=1, padx=8, pady=8)
 
         last_name_var = tkinter.StringVar()
-        last_name_var.set("نام خانوادگی")
+        last_name_var.set(user.l_name)
         last_name_entry = tkinter.Entry(info_frame, textvariable=last_name_var, width=26, justify=tkinter.CENTER,
          font=font1, bg=self.color_palette[4], disabledforeground="black", disabledbackground=self.color_palette[3],
          highlightthickness=0, bd=0,  highlightbackground=self.color_palette[4], highlightcolor=self.color_palette[2])
@@ -97,7 +106,7 @@ class Profile_panel(tkinter.Label):
         tkinter.Label(info_frame, text="شماره تماس", font=font1, bg=self.color_palette[3]).grid(row=2, column=1, padx=8, pady=8)
         
         phone_number_var = tkinter.StringVar()
-        phone_number_var.set("09...")        
+        phone_number_var.set(user.phone)        
         phone_number_entry = tkinter.Entry(info_frame, textvariable=phone_number_var,  width=22, justify=tkinter.CENTER,
          font=font_english, bg=self.color_palette[4], disabledforeground="black", disabledbackground=self.color_palette[3],
          highlightthickness=0, bd=0,  highlightbackground=self.color_palette[4], highlightcolor=self.color_palette[2])
@@ -109,12 +118,18 @@ class Profile_panel(tkinter.Label):
         tkinter.Label(info_frame, text="ایمیل", font=font1, bg=self.color_palette[3]).grid(row=3, column=1, padx=8, pady=8)
         
         email_var = tkinter.StringVar()
-        email_var.set("email") 
+        email_var.set(user.email) 
         email_entry = tkinter.Entry(info_frame, width=22, textvariable=email_var, justify=tkinter.CENTER,
          font=font_english, bg=self.color_palette[4], disabledforeground="black", disabledbackground=self.color_palette[3],
          highlightthickness=0, bd=0, highlightbackground=self.color_palette[4], highlightcolor=self.color_palette[2])
         email_entry.config(state="disable")
         email_entry.grid(row=3, column=0, padx=8, pady=8)
+
+        #eror message
+
+        self.error_message_label = tkinter.Label(info_frame, text=" ", fg=color_palette[2], font=font2,
+         bg=color_palette[3])
+        self.error_message_label.grid(row=4, column=0, columnspan=2)
 
         #     eddit
 
@@ -130,7 +145,7 @@ class Profile_panel(tkinter.Label):
             last_name_entry.config(state="normal", highlightthickness=1)
             phone_number_entry.config(state="normal", highlightthickness=1)
             email_entry.config(state="normal", highlightthickness=1)
-            confirm_button.grid(row=4, column=0, padx=8)
+            confirm_button.grid(row=5, column=0, padx=8)
 
         def confirm():
             first_name_entry.config(state="disable", highlightthickness=0)
@@ -138,6 +153,17 @@ class Profile_panel(tkinter.Label):
             phone_number_entry.config(state="disable", highlightthickness=0)
             email_entry.config(state="disable", highlightthickness=0)
             confirm_button.grid_forget()
+            var = user.change_account_info(first_name_var.get(), last_name_var.get(),phone_number_var.get(), email_var.get())
+            if(isinstance(var, str)):
+                self.error_message_label.configure(text=var)
+            else:
+                self.error_message_label.configure(text=" ")
+            
+            first_name_var.set(user.name)
+            last_name_var.set(user.l_name)
+            phone_number_var.set(user.phone)
+            email_var.set(user.email)
+            right_menu.update_info()
 
         eddit_img = Image.open(os.path.join(sys.path[0], "resources\icons\eddit.png"))
         eddit_image = ImageTk.PhotoImage(eddit_img)
@@ -145,11 +171,11 @@ class Profile_panel(tkinter.Label):
         eddit_button = tkinter.Button(info_frame, image=eddit_image, font=font1, bg=self.color_palette[3],
          highlightthickness=0, bd=0, activebackground=self.color_palette[3], command=lambda:eddit())
         eddit_button.image = eddit_image
-        eddit_button.grid(row=4, column=1, padx=8)
+        eddit_button.grid(row=5, column=1, padx=8)
 
         #change password 
 
-        change_password_panel = Change_password_panel(self, self.color_palette)
+        change_password_panel = Change_password_panel(self, self.color_palette, user)
 
         change_passwword_img = Image.open(os.path.join(sys.path[0], "resources\icons\change_password.png"))
         change_passwword_image = ImageTk.PhotoImage(change_passwword_img)
@@ -157,16 +183,17 @@ class Profile_panel(tkinter.Label):
         change_passwword_button = tkinter.Button(info_frame, image=change_passwword_image, font=font1, bg=self.color_palette[3],
          highlightthickness=0, bd=0, activebackground=self.color_palette[3], command=lambda:change_password_panel.show())
         change_passwword_button.image = change_passwword_image
-        change_passwword_button.grid(row=5, column=1, padx=8)
+        change_passwword_button.grid(row=6, column=1, padx=8)
 
     def show(self):
         self.place(x=20, y=20)
 
     def hide(self):
+        self.error_message_label.configure(text=" ")
         self.place_forget()
 
 class Change_password_panel(tkinter.Frame):
-    def __init__(self, root, color_palette):
+    def __init__(self, root, color_palette, user:UserAndManager.User):
         self.color_palette = color_palette
         super().__init__(root, width=1020, height=640, bg=color_palette[3], bd=0)
         self.pack_propagate(0)
@@ -217,16 +244,22 @@ class Change_password_panel(tkinter.Frame):
 
         #error massage
 
-        error_message = tkinter.Label(frame, text=" \n ", font=font2, fg=self.color_palette[2], bg=self.color_palette[3])
+        error_message = tkinter.Label(frame, text=" ", font=font2, fg=self.color_palette[2], bg=self.color_palette[3])
         error_message.grid(row=3, column=0, columnspan=2, padx=8, pady=8)
 
         #confirm button
 
         def confirm():
-            current_password_var.set("")
-            new_password_var.set("")
-            new_password_confirm_var.set("")
-            self.hide()
+            var = user.change_password(current_password_var.get(), new_password_var.get(), new_password_confirm_var.get())
+            if(isinstance(var, str)):
+                error_message.configure(text=var)
+            else:
+                error_message.configure(text=" ")
+                current_password_var.set("")
+                new_password_var.set("")
+                new_password_confirm_var.set("")    
+                self.hide()
+            
 
         confirm_img = Image.open(os.path.join(sys.path[0], "resources\icons\confirm.png"))
         confirm_image = ImageTk.PhotoImage(confirm_img)
@@ -236,7 +269,21 @@ class Change_password_panel(tkinter.Frame):
         confirm_button.image = confirm_image
         confirm_button.grid(row=4, column=1, padx=8, pady=8)
 
+        #clsoe button
 
+        def close():
+            current_password_var.set("")
+            new_password_var.set("")
+            new_password_confirm_var.set("")
+            self.hide()
+
+        close_img = Image.open(os.path.join(sys.path[0], "resources\icons\close.png"))
+        close_image = ImageTk.PhotoImage(close_img)
+
+        close_button = tkinter.Button(frame, image=close_image, bg=self.color_palette[3],
+         highlightthickness=0, bd=0, activebackground=self.color_palette[3], command=close)
+        close_button.image = close_image
+        close_button.grid(row=4, column=0, padx=8, pady=8)
 
     def show(self):
         self.place(x=20, y=20)

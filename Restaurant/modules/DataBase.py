@@ -1,9 +1,10 @@
 import sqlite3
-import os
+import os, sys
 from PIL import Image
 import time
-import UserAndManager
-import Food
+from modules import UserAndManager
+from modules import Food
+import hashlib
 
 class DB:
     def __init__(self, path):
@@ -23,7 +24,7 @@ class DB:
                 id TEXT, 
                 email TEXT PRIMARY KEY,
                 phone TEXT,
-                picture BLOB
+                picture BLOB,
                 user_id TEXT
             )
             ''')
@@ -32,11 +33,11 @@ class DB:
             self.cur.execute('''
             CREATE TABLE food
             (
-                food_id INTEGER
+                food_id INTEGER,
                 name TEXT, 
                 price INTEGER, 
                 picture BLOB, 
-                discription TEXT
+                discription TEXT,
                 count INTEGER
             ) 
             ''')
@@ -54,7 +55,7 @@ class DB:
             self.cur.execute('''
             CREATE TABLE password(
                 user_id TEXT,
-                password INTEGER
+                password TEXT
             )
             ''')
             
@@ -81,6 +82,25 @@ class DB:
             ''')
 
             # restaurant data
+            self.cur.execute(
+                '''
+                CREATE TABLE restaurant_data
+                (
+                    owner_name TEXT,
+                    owner_last_name TEXT,
+                    district TEXT,
+                    restaurant_address TEXT,
+                    menu_pic BLOB
+                )
+                '''
+            )
+            self.cur.execute(
+                '''
+                INSERT INTO restaurant_data VALUES (
+                    ?, ?, ?, ?, ?
+                )
+                '''
+            ,('نام', 'نام خانوادگی', 'hakimie', 'address', self.image_to_bin(Image.open(os.path.join(sys.path[0], "resources\panels\menu_image.jpg")))))
 
             self.cur.execute('''
             CREATE TABLE discount(
@@ -137,7 +157,7 @@ class DB:
         # add a record to password table
         self.cur.execute('''
         INSERT INTO password VALUES (?, ?)
-        ''', (user_id, hash(password)))
+        ''', (user_id, hashlib.sha224(bytes(password, 'utf-8')).hexdigest()))
         self.con.commit()
 
     def change_account_info(self, new_name, new_l_name, 
@@ -147,7 +167,7 @@ class DB:
         self.cur.execute('''
         UPDATE user
         SET name = ?,
-        l_name = ?,
+        last_name = ?,
         id = ?,
         phone = ?,
         email = ?
@@ -161,10 +181,10 @@ class DB:
         hashed_pass = self.cur.execute('''
         SELECT * FROM password WHERE user_id = ?
         ''', (user_id, )).fetchone()[1]
-        if hash(old_password) == hashed_pass:
+        if hashlib.sha224(bytes(old_password, 'utf-8')).hexdigest() == hashed_pass:
             self.cur.execute('''
             UPDATE password SET password = ? WHERE user_id = ?
-            ''', (hash(new_password), user_id))
+            ''', (hashlib.sha224(bytes(new_password, 'utf-8')).hexdigest(), user_id))
             self.con.commit()
             return 0 # password changed successfully
         else:
@@ -178,28 +198,34 @@ class DB:
         self.con.commit() 
 
     def get_user_obj(self, email, password):
-        user_id = self.get_user_id(email)
-        user_pass = self.cur.execute('''
-        SELECT password FROM password WHERE user_id = ?
-        ''', (user_id, )).fetchone()
-        if user_pass != None and user_pass[0] == hash(password):
-            data = self.cur.execute('''
-            SELECT * from user WHERE user_id = ?
+        user_id = self.cur.execute('''
+        SELECT user_id FROM user WHERE email = ?
+        ''', (email, )).fetchone()
+        if(user_id != None):
+            user_id = user_id[0]
+            user_pass = self.cur.execute('''
+            SELECT password FROM password WHERE user_id = ?
             ''', (user_id, )).fetchone()
-            return UserAndManager.User(data[0], data[1], data[2], 
-            data[3], data[4], data[5], user_id, self)
+            if user_pass[0] == hashlib.sha224(bytes(password, 'utf-8')).hexdigest():
+                data = self.cur.execute('''
+                SELECT * from user WHERE user_id = ?
+                ''', (user_id, )).fetchone()
+                return UserAndManager.User(data[0], data[1], data[2], 
+                data[3], data[4], data[5], user_id, self)
+            else:
+                return 'نام کاربری یا رمز عبور اشتباه است'
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
 
     def get_manager_obj(self, personal_id, password):
         user_pass = self.cur.execute('''
-        SELECT pasword FROM admin WHERE personal_id = ?
+        SELECT password FROM admin WHERE personal_id = ?
         ''', (personal_id, )).fetchone()
         if user_pass != None and user_pass[0] == password:
             x = self.cur.execute('''
                 SELECT * FROM admin WHERE personal_id = ?
                 ''', (personal_id, )).fetchone()
-            return UserAndManager.Manager(personal_id, *x[:6])
+            return UserAndManager.Manager(personal_id, *x[:6], self)
         else:
             return 'نام کاربری یا رمز عبور اشتباه است'
     
@@ -207,15 +233,32 @@ class DB:
         self.cur.execute('''
             UPDATE admin
             SET name = ?,
-                l_name = ?,
+                last_name = ?,
                 phone = ?,
                 email = ?
             WHERE personal_id = ?
         ''', (name, l_name, phone, email, personal_id))
+        self.con.commit()
 
+    def change_manager_password(self, personal_id, password, new_pass):
+        user_pass = self.cur.execute(
+            '''
+            SELECT password FROM admin WHERE personal_id = ?
+            ''', (personal_id, )
+        )[0]
+        if user_pass == password:
+            self.cur.execute(
+                '''
+                UPDATE admin SET password = ? WHERE personal_id = ?
+                ''', (new_pass, personal_id)
+            )
+            return 0 # successfull
+        else:
+            return 1 # not successfull
+        
     def create_food(self, food_id, name, price, picture, discription1, discription2, count):
         discription = self.discription_list_to_str(discription1, discription2)
-        picture = self.image_to_array(picture)
+        picture = self.image_to_bin(picture)
         self.cur.execute('''
             INSERT INTO food VALUES(
                 ?, ?, ?, ?, ?, ?
@@ -262,7 +305,7 @@ class DB:
         table = self.get_table_data('food')
         for _ in table:
             food_list.append(Food.Food(_[0], _[1], _[2], 
-            self.array_to_image(_[3]), 
+            self.bin_to_image(_[3]), 
             self.discription_str_to_list(_[4])[0], 
             self.discription_str_to_list(_[4])[1],
             _[5]))
@@ -320,14 +363,60 @@ class DB:
         self.con.commit()
         
     def get_table_data(self, table):
-        return self.cur.execute(f'''
+        table = self.cur.execute(f'''
             SELECT * FROM {table}
             ''').fetchall()
+        self.con.commit()
+        return table
         
     def get_user_id(self, email):
         return self.cur.execute('''
         SELECT user_id FROM user WHERE email = ?
         ''', (email, )).fetchone()[0]
+    
+    def update_user_profile(self, user_id, picture : Image.Image):
+        self.cur.execute(
+            '''
+            UPDATE user
+            SET picture = ?
+            WHERE user_id = ?
+            ''', (self.image_to_bin(picture), user_id)
+        )
+        self.con.commit()
+    
+    def update_manager_profile(self, personal_id, picture : Image.Image):
+        self.cur.execute(
+            '''
+            UPDATE admin
+            SET picture = ?
+            WHERE personal_id = ?
+            ''', (self.image_to_bin(picture), personal_id)
+        )
+        self.con.commit()
+
+
+    def update_menu(self, menu : Image.Image):
+        self.cur.execute(
+            '''
+            UPDATE restaurant_data
+            SET menu_pic = ?
+            WHERE rowid = ?
+            ''', (self.image_to_bin(menu), 0)
+        )
+        self.con.commit()
+    
+    def update_restaurant_data(self, name, l_name,
+            district, address):
+        self.cur.execute(
+            '''
+            UPDATE restaurant_data
+            SET owner_name = ?,
+                owner_last_name = ?,
+                district = ?,
+                restaurant_address = ?
+            ''', (name, l_name, district, address)
+        )
+        self.con.commit()
 
     def close(self):
         self.con.close()
@@ -339,12 +428,28 @@ class DB:
     def discription_str_to_list(discription_str : str):
         return discription_str.split('|')
     @staticmethod
-    def image_to_array(image: Image.Image()):
-        ...
+    def image_to_bin(image: Image.Image):
+        try:
+            image.save(os.path.join(sys.path[0], "database\\temp.jpg"))
+            with open(os.path.join(sys.path[0], "database\\temp.jpg"), 'rb') as file:
+                bin_image = file.read()
+            os.system('del ' + os.path.join(sys.path[0], "database\\temp.jpg"))
+            os.system('rm ' + os.path.join(sys.path[0], "database\\temp.jpg"))
+            return bin_image
+        except TypeError:
+            return None
     @staticmethod
-    def array_to_image(array):
-        ...
-    
+    def bin_to_image(bin : bytes):
+        try:
+            with open(os.path.join(sys.path[0], "database\\temp.jpg"), 'wb') as file:
+                file.write(bin)
+            image = Image.open(os.path.join(sys.path[0], "database\\temp.jpg"))
+            os.system('del ' + os.path.join(sys.path[0], "database\\temp.jpg"))
+            os.system('rm ' + os.path.join(sys.path[0], "database\\temp.jpg"))
+            return image
+        except TypeError:
+            return None
+
     def update_last_order(self, user_id, food_data):
         self.cur.execute('''
         UPDATE last_order
@@ -358,21 +463,25 @@ class DB:
         ''', (code, value))
 
     def get_discount_value(self, code):
-        return self.cur.execute('''
+        value =  self.cur.execute('''
         SELECT off_value FROM discount WHERE 
         offcode = ?
-        ''', (code, )).fetchone()[0]
+        ''', (code, )).fetchone()
+        if value != None:
+            return value[0]
 
     def use_discount(self, code) -> int:
         value = self.cur.execute('''
         SELECT off_value FROM discount WHERE 
         offcode = ?
-        ''', (code, )).fetchone()[0]
+        ''', (code, )).fetchone()
+        if value == None:
+            return 0
         self.cur.execute('''
         DELETE FROM discount WHERE offcode = ?
         ''', (code, ))
         self.con.commit()
-        return value
+        return value[0]
 
     def add_opinion(self, text):
         self.cur.execute(
