@@ -147,9 +147,9 @@ class Manager:
                 full_orders_list.append(full_order)
         return sorted(full_orders_list, key = lambda x : x.date)
     
-    def confirm_order(self, full_order : Food.FullOrderLog):
+    def confirm_order(self, full_order : Food.FullOrderLog, date):
         self.db.confirm_order(full_order.user_email, 
-            full_order.purchase_number)
+            full_order.purchase_number, date)
 
 class User:
     def __init__(self, name, l_name, id, email, phone, picture : bytes, user_id, db):
@@ -227,12 +227,18 @@ class User:
         else:
             return ''
 
-    def remove_from_last_order(self, foodlog : Food.FoodLog):
-        'remove a food log from last order'
-        self.last_order.remove(foodlog)
-        for food_obj in Food.Food.food_list:
-            if food_obj.food_id == foodlog.food_id:
-                food_obj.amount += foodlog.count
+    def remove_from_last_order(self, foodlog : Food.FoodLog, count = -1):
+        'remove a food log from last order or decrease the amount of it'
+        if count == -1 or foodlog.count == count:
+            self.last_order.remove(foodlog)
+            for food_obj in Food.Food.food_list:
+                if food_obj.food_id == foodlog.food_id:
+                    food_obj.amount += foodlog.count
+        else:
+            foodlog.count -= count
+            for food_obj in Food.Food.food_list:
+                if food_obj.food_id == foodlog.food_id:
+                    food_obj.amount += count  
 
     def get_total_price(self):
         x = 0

@@ -162,7 +162,7 @@ class DB:
             date TEXT,
             off_code TEXT,
             off_value INTEGER,
-            confirm INTEGER
+            confirm TEXT
         )
         ''')
         self.cur.execute('''
@@ -544,15 +544,15 @@ class DB:
                 opinions.append((_[0], _[2], _[3]))
         return opinions
     
-    def confirm_order(self, email, purchase_number):
+    def confirm_order(self, email, purchase_number, date):
         'confirm the order'
         user_id = self.get_user_id(email)
         self.cur.execute(
             f'''
             UPDATE {user_id}_order_log
-            SET confirm = 1
+            SET confirm = ?
             WHERE purchase_number = ?
-            ''', (purchase_number)
+            ''', (date, purchase_number)
         )
         ...
         self.con.commit()
