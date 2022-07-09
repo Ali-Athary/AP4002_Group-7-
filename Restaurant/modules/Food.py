@@ -1,4 +1,4 @@
-from modules import DataBase
+from modules import DataBase, UserAndManager
 from PIL import Image
 
 class Food:
@@ -52,15 +52,28 @@ class Food:
         cls.food_list = db.get_foods_obj()
 
     @classmethod
-    def reload_foods(cls, db):
+    def reload_foods(cls, db, user):
         'reload all foods'
-        food_table = db.get_table_data('food')
-        for data_base_food in food_table:
-            for food_obj in cls.food_list:
-                if data_base_food[0] == food_obj.food_id:
-                    food_obj.amount = data_base_food[6]
-                    break
-    
+        if isinstance(user, UserAndManager.User):
+            food_table = db.get_table_data('food')
+            for data_base_food in food_table:
+                for food_obj in cls.food_list:
+                    if food_obj.food_id == data_base_food[0]:
+                        for foodlog in user.last_order:
+                            if foodlog.food_id == food_obj.food_id:
+                                food_obj.amount = data_base_food[6] - foodlog.count
+                                break
+                        else:
+                            food_obj.amount = data_base_food[6]
+                        break
+                else:
+                    cls.food_list.append(Food(food_table[0], food_table[1], 
+                    food_table[2], food_table[3], 
+                    db.bin_to_image(food_table[4]), 
+                    db.discription_str_to_list(food_table[5])[0], 
+                    db.discription_str_to_list(food_table[5])[1],
+                    food_table[6]))
+        
     @classmethod
     def delete_food(cls, food, db):
         cls.food_list.remove(food)
