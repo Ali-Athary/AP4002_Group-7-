@@ -223,7 +223,7 @@ class DB:
                 smtp_server = "smtp.gmail.com"
                 sender_email = "mmdhossein.haghdadi@gmail.com"
                 receiver_email = email
-                password = input("Type your password and press enter:")
+                password = "mruc dneo wrqw mxly"
                 message = f"""
                 Hi there
 
