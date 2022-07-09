@@ -108,7 +108,6 @@ class Cart_panel(tkinter.Label):
             if(isinstance(item, Food.FoodLog)):
                 # item frame
                 cart_food_item(frame, self.color_palette, self.ui_images, self, item)
-                
             
     def update_page(self):        
         for item in self.items:
@@ -118,6 +117,11 @@ class Cart_panel(tkinter.Label):
         d = user.get_last_order_dict()
         for key in d.keys():
             self.Add_cart_item(key, d[key])
+
+        if(len(d.keys()) == 0):
+            self.top_bar.purchase_complete_button.config(state="disable")
+        else:
+            self.top_bar.purchase_complete_button.config(state="normal")
 
         self.top_bar.update_price()
 
@@ -277,10 +281,10 @@ class Cart_top_bar(tkinter.Frame):
         complete_img = Image.open(os.path.join(sys.path[0], "resources\icons\\cart_complete_purchase_button.png")).convert("RGBA")
         complete_image = ImageTk.PhotoImage(complete_img)
 
-        purchase_complete_button = tkinter.Button(button_frame, bg=color_palette[3], image=complete_image,
+        self.purchase_complete_button = tkinter.Button(button_frame, bg=color_palette[3], image=complete_image,
          highlightthickness=0, bd=0, activebackground=color_palette[3], command=complete)
-        purchase_complete_button.image = complete_image
-        purchase_complete_button.pack(side=tkinter.LEFT)
+        self.purchase_complete_button.image = complete_image
+        self.purchase_complete_button.pack(side=tkinter.LEFT)
 
         #discount 
         

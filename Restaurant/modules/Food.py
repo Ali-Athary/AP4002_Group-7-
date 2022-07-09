@@ -1,4 +1,4 @@
-from modules import DataBase
+from modules import DataBase, UserAndManager
 from PIL import Image
 
 class Food:
@@ -52,15 +52,37 @@ class Food:
         cls.food_list = db.get_foods_obj()
 
     @classmethod
-    def reload_foods(cls, db):
+    def reload_foods(cls, db, user):
         'reload all foods'
-        food_table = db.get_table_data('food')
-        for data_base_food in food_table:
-            for food_obj in cls.food_list:
-                if data_base_food[0] == food_obj.food_id:
-                    food_obj.amount = data_base_food[6]
-                    break
-    
+        if isinstance(user, UserAndManager.User):
+            food_table = db.get_table_data('food')
+            for data_base_food in food_table:
+                for food_obj in cls.food_list:
+                    if food_obj.food_id == data_base_food[0]:
+                        for foodlog in user.last_order:
+                            if foodlog.food_id == food_obj.food_id:
+                                food_obj.amount = data_base_food[6] - foodlog.count
+                                break
+                        else:
+                            food_obj.amount = data_base_food[6]
+                        break
+                else:
+                    cls.food_list.append(Food(data_base_food[0], data_base_food[1], 
+                    data_base_food[2], data_base_food[3], 
+                    db.bin_to_image(data_base_food[4]), 
+                    db.discription_str_to_list(data_base_food[5])[0], 
+                    db.discription_str_to_list(data_base_food[5])[1],
+                    data_base_food[6]))
+            l = []
+            for i, food_obj in enumerate(cls.food_list):
+                for data_base_food in food_table:
+                    if food_obj.food_id == data_base_food[0]:
+                        break
+                else:
+                    l.append(i)
+
+            for _ in l:
+                cls.food_list.pop()       
     @classmethod
     def delete_food(cls, food, db):
         cls.food_list.remove(food)
