@@ -172,6 +172,14 @@ class User:
         self.off_code = ''
         self.last_order = self.get_last_order()
         self.order_log = self.get_order_log()
+    
+    def search_food(name):
+        searched_list = []
+        for _ in Food.Food.food_list:
+            if _.name.count(name) > 0:
+                searched_list.append(_)
+        
+        return searched_list
 
     def add_food_to_order_list(self, food : Food.Food, count, date):
         'select food from the menu'
