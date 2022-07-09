@@ -37,7 +37,6 @@ class Opinion_panel(tkinter.Label):
         
         tkinter.Label(title_frame, text="نظرات کاربر ها", bg=self.color_palette[3], font=font2).pack(side=tkinter.RIGHT)
 
-
         #items frame
 
         self.item_frame = Item_ScrollableFrame(self, color_palette)
