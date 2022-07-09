@@ -534,7 +534,7 @@ class DB:
         table = self.get_table_data('opinion')
         self.cur.execute(
             '''
-            UPDATE SET viewed = 1
+            UPDATE opinion SET viewed = 1
             '''
         )
         self.con.commit()

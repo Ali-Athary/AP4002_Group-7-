@@ -85,7 +85,7 @@ class Food_inventory_panel(tkinter.Label):
         descriptiona_frame.pack_propagate(0)
         descriptiona_frame.place(x=740, y=40, anchor=tkinter.NE)
 
-        ingrediente = ["گوشت، پنیر، قارچ، پپرونی", "سس مخصوص، خمیر مخصوص"]
+        ingrediente = food.discription
 
         f = tkinter.Frame(descriptiona_frame, bg=self.color_palette[2])
         f.pack(expand=True, fill="none")

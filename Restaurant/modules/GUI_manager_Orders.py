@@ -145,7 +145,7 @@ class Orders_Detail_panel(tkinter.Label):
 
         tkinter.Label(f, text="تاریخ ارسال", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
         tkinter.Label(f, text=":", font=font1, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
-        tkinter.Label(f, text="-", font=font2, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
+        tkinter.Label(f, text=order.confirm, font=font2, bg=color_palette[4]).pack(side=tkinter.RIGHT, padx=8)
 
         #user name
         
@@ -233,9 +233,9 @@ class Orders_Detail_panel(tkinter.Label):
 
         #send button
 
-        if(order.confirm == 0):
+        if(order.confirm == ""):
             def send():
-                admin.confirm_order(order)
+                admin.confirm_order(order, functions.get_date())
                 root.hide_detail()
 
             send_button = tkinter.Button(button_frame, image=self.item_ui_image.send, bg=color_palette[3],

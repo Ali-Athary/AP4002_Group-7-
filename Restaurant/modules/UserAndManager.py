@@ -102,7 +102,7 @@ class Manager:
         for name, email in name_and_email:
             orders = self.db.get_user_log(email)
             for order in orders:
-                if order.confirm == 1:
+                if order.confirm:
                     full_order = Food.FullOrderLog(
                         order.food_log_list,
                         order.total_price,
@@ -120,7 +120,7 @@ class Manager:
         for name, email in name_and_email:
             orders = self.db.get_user_log(email)
             for order in orders:
-                if order.confirm == 0:
+                if not order.confirm:
                     full_order = Food.FullOrderLog(
                         order.food_log_list,
                         order.total_price,

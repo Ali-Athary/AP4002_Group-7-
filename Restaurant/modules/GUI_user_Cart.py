@@ -212,7 +212,7 @@ class cart_food_item(tkinter.Frame):
             if(count == 0):
                 user.remove_from_last_order(item)
             else:
-                pass
+                user.remove_from_last_order(item, item.count - count)
             self.main_root.update_page()
 
         change_count_button = tkinter.Button(item_adjust_frame, image=self.ui_images.change, bg=self.color_palette[4],
