@@ -106,9 +106,9 @@ class History_panel(tkinter.Label):
         final_price_frame.pack_propagate(0)
         final_price_frame.pack()
 
-        tkinter.Label(final_price_frame, text="قیمت نهای (با احتساب تخفیف)", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(final_price_frame, text="قیمت نهایی (با احتساب تخفیف)", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
         tkinter.Label(final_price_frame, text=":", font=font1, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-        tkinter.Label(final_price_frame, text=functions.turn_int_to_price(log.total_price - log.off_value), font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(final_price_frame, text=functions.turn_int_to_price(log.final_price), font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
         tkinter.Label(final_price_frame, text="تومان", font=font2, bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
 
         # column name

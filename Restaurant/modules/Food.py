@@ -85,6 +85,7 @@ class OrderLog:
         self.date = date
         self.confirm = confirm
         self.purchase_number = purchase_number
+        self.final_price = (self.total_price - self.off_value) if (self.total_price - self.off_value >= 0) else 0
     def __repr__(self) -> str:
         return f"OrderLog object | total price : {self.total_price}, date : {self.date} \n \
             food list : \n \

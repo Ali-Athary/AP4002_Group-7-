@@ -126,7 +126,8 @@ class Manager:
                         order.total_price,
                         order.original_price,
                         order.date,
-                        email, name, confirm= order.confirm
+                        email, name, confirm= order.confirm,
+                        purchase_number= order.purchase_number
                     )
                     full_orders_list.append(full_order)
         return sorted(full_orders_list, key = lambda x : x.date)
@@ -142,7 +143,8 @@ class Manager:
                     order.total_price,
                     order.original_price,
                     order.date,
-                    email, name, confirm= order.confirm
+                    email, name, confirm= order.confirm,
+                    purchase_number= order.purchase_number
                 )
                 full_orders_list.append(full_order)
         return sorted(full_orders_list, key = lambda x : x.date)
@@ -213,19 +215,32 @@ class User:
                 break
         last_order = last_order.split('|')
         if last_order == ['']:
-            return []
+            last_order = []
         else:
-            return list(map(lambda x: Food.FoodLog(*x.split('$')), last_order))
+            last_order = list(map(lambda x: Food.FoodLog(*x.split('$')), last_order))
+
+        i_list = []
+        for i, log in enumerate(last_order):
+            for food in Food.Food.food_list:
+                if food.food_id == log.food_id:
+                    if food.amount - log.count >= 0:
+                        food.amount -= log.count
+                    else:
+                        i_list.append(i)
+        for _ in i_list:
+            last_order.pop(_)
+        
+        return last_order
 
     def save_last_order(self):
         'save the unfinished order to the data-base'
         food_data = ''
         for food in self.last_order:
-            food_data += f'{food.food_id}${food.name}${food.date}${food.count}|'
+            food_data += f'{food.food_id}${food.name}${food.date}${food.count}${food.price}${food.original_price}|'
         if len(food_data) != 0:
-            return food_data[:-1]
+            self.db.update_last_order(self.user_id, food_data[:-1])
         else:
-            return ''
+            return self.db.update_last_order(self.user_id, '')
 
     def remove_from_last_order(self, foodlog : Food.FoodLog, count = -1):
         'remove a food log from last order or decrease the amount of it'

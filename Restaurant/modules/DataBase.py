@@ -488,12 +488,14 @@ class DB:
         SET food_data = ?
         WHERE user_id = ?
         ''', (food_data, user_id))
+        self.con.commit()
     
     def add_discount_code(self, code, value):
         'add a new discount code'
         self.cur.execute('''
         INSERT INTO discount VALUES(?, ?)
         ''', (code, value))
+        self.con.commit()
 
     def get_discount_value(self, code):
         'get the value of a discount code'
@@ -540,8 +542,8 @@ class DB:
         self.con.commit()
         opinions = []
         for _ in table:
-            if _[1] == 0:
-                opinions.append((_[0], _[2], _[3]))
+            if _[3] == 0:
+                opinions.append((_[0], _[1], _[2]))
         return opinions
     
     def confirm_order(self, email, purchase_number, date):
@@ -554,7 +556,6 @@ class DB:
             WHERE purchase_number = ?
             ''', (date, purchase_number)
         )
-        ...
         self.con.commit()
     
     def today_order_log(self, date):
