@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 import os
 import sys
 from modules import GUI_user_Food_Menu_page, GUI_user_Cart, GUI_user_History, GUI_user_Suggestion, GUI_user_Profile
+from modules import Food, functions, UserAndManager
 
 pages = {}
 active_page_name = ""
@@ -27,9 +28,14 @@ def change_page(name):
 
     active_page_name = name
 
-def main(root, color_palette, user):
+def on_close_app(root):
+    User.save_last_order()
+    root.destroy()
+
+def main(root, color_palette, user:UserAndManager.User):
     global active_page_name, pages, User
     User = user
+    root.protocol("WM_DELETE_WINDOW",lambda:on_close_app(root))
     #main frame
     set_profile_info(user)
 

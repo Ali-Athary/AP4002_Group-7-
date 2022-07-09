@@ -43,9 +43,9 @@ class Opinion_panel(tkinter.Label):
         self.item_frame = Item_ScrollableFrame(self, color_palette)
         self.item_frame.place(x=20, y=100)
 
-
-        for i in range(10):
-            self.item_frame.add_item()
+        opinion_list = admin.view_comments()
+        for opinion in opinion_list:
+            self.item_frame.add_item(opinion)
 
     def Add_cart_item(self, food_log):
         if(isinstance(food_log, Food.FoodLog)):
@@ -111,7 +111,7 @@ class Item_ScrollableFrame(ttk.Frame):
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
     
-    def add_item(self):
+    def add_item(self, opinion):
         #item frame
 
         frame = tkinter.Frame(self.scrollable_frame, width=980, height=200, bg=self.color_palette[3],
@@ -134,19 +134,19 @@ class Item_ScrollableFrame(ttk.Frame):
         tkinter.Label(info_frame, text=" ", bg=self.color_palette[4], font=font1).pack(side=tkinter.RIGHT, padx=4)
         tkinter.Label(info_frame, text="نام کاربر", bg=self.color_palette[4], font=font1).pack(side=tkinter.RIGHT)
         tkinter.Label(info_frame, text=":", bg=self.color_palette[4], font=font1).pack(side=tkinter.RIGHT, padx=4)
-        tkinter.Label(info_frame, text="علی", bg=self.color_palette[4], font=font1).pack(side=tkinter.RIGHT)
+        tkinter.Label(info_frame, text=opinion[2], bg=self.color_palette[4], font=font1).pack(side=tkinter.RIGHT)
 
         #date
 
         tkinter.Label(info_frame, text=" ", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT, padx=4)
         tkinter.Label(info_frame, text="1401/04/18", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT)
         tkinter.Label(info_frame, text=":", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT, padx=4)
-        tkinter.Label(info_frame, text="تاریخ", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT)
+        tkinter.Label(info_frame, text=opinion[1], bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT)
 
         #text
 
         text_box = tkinter.Text(frame, height=9, width=68, font=font1, bg="white", highlightthickness=0, bd=0)
         text_box.tag_configure('tag-right', justify='right')
-        text_box.insert('end', "سلام، خوبی؟", 'tag-right')
+        text_box.insert('end', opinion[0], 'tag-right')
         text_box.config(state='disabled')
         text_box.pack()
