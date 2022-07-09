@@ -178,6 +178,8 @@ class Food_menu_panel(tkinter.Label):
         image_label.place(x=0,y=0)
 
     def update_page(self, text=""):
+        Food.Food.reload_foods(user.db, user)
+
         for item in self.items:
             item.pack_forget()
         self.items = []

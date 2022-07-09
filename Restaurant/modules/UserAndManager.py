@@ -257,11 +257,13 @@ class User:
             for food_obj in Food.Food.food_list:
                 if food_obj.food_id == foodlog.food_id:
                     food_obj.amount += foodlog.count
+                    break
         else:
             foodlog.count -= count
             for food_obj in Food.Food.food_list:
                 if food_obj.food_id == foodlog.food_id:
-                    food_obj.amount += count  
+                    food_obj.amount += count 
+                    break 
 
     def get_total_price(self):
         x = 0

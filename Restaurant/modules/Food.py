@@ -67,13 +67,22 @@ class Food:
                             food_obj.amount = data_base_food[6]
                         break
                 else:
-                    cls.food_list.append(Food(food_table[0], food_table[1], 
-                    food_table[2], food_table[3], 
-                    db.bin_to_image(food_table[4]), 
-                    db.discription_str_to_list(food_table[5])[0], 
-                    db.discription_str_to_list(food_table[5])[1],
-                    food_table[6]))
-        
+                    cls.food_list.append(Food(data_base_food[0], data_base_food[1], 
+                    data_base_food[2], data_base_food[3], 
+                    db.bin_to_image(data_base_food[4]), 
+                    db.discription_str_to_list(data_base_food[5])[0], 
+                    db.discription_str_to_list(data_base_food[5])[1],
+                    data_base_food[6]))
+            l = []
+            for i, food_obj in enumerate(cls.food_list):
+                for data_base_food in food_table:
+                    if food_obj.food_id == data_base_food[0]:
+                        break
+                else:
+                    l.append(i)
+
+            for _ in l:
+                cls.food_list.pop()       
     @classmethod
     def delete_food(cls, food, db):
         cls.food_list.remove(food)
