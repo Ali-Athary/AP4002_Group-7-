@@ -173,7 +173,7 @@ class User:
         self.last_order = self.get_last_order()
         self.order_log = self.get_order_log()
     
-    def search_food(name):
+    def search_food(self, name):
         searched_list = []
         for _ in Food.Food.food_list:
             if _.name.count(name) > 0:

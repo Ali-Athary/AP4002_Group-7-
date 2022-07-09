@@ -182,12 +182,15 @@ class Food_menu_panel(tkinter.Label):
             item.pack_forget()
         self.items = []
 
+        self.top_bar.search_var.set("")
+
         self.item_ui_image = Food_item_UI_images()
 
         if(len(text.strip()) == 0):
             food_list = Food.Food.food_list
         else:
-            pass
+            food_list = user.search_food(text)
+
         for food in food_list:
             self.add_food_to_list(food)
 
@@ -256,7 +259,7 @@ class Food_manu_top_bar(tkinter.Frame):
         # sreach button
 
         def search():
-            text = search_var.get()
+            text = self.search_var.get()
             main_panel.update_page(text)
 
         sreach_img = Image.open(os.path.join(sys.path[0], "resources\icons\search.png")).convert("RGBA")
@@ -269,8 +272,8 @@ class Food_manu_top_bar(tkinter.Frame):
 
         #search entry
 
-        search_var = tkinter.StringVar()
-        tkinter.Entry(search_frame, textvariable=search_var, font=font3, justify=tkinter.RIGHT,
+        self.search_var = tkinter.StringVar()
+        tkinter.Entry(search_frame, textvariable=self.search_var, font=font3, justify=tkinter.RIGHT,
          highlightthickness=0, bd=0).pack(side=tkinter.RIGHT, padx=20) 
 
     def get_date(self):
