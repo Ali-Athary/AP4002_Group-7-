@@ -150,6 +150,8 @@ class Food_menu_panel(tkinter.Label):
         def buy():
             nonlocal count
             nonlocal count_label, left_label
+            if(count == 0):
+                return
             user.add_food_to_order_list(food, count, self.top_bar.get_date())
             count = 0
             count_label.configure(text=count)
