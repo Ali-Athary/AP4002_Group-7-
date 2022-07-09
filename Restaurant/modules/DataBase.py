@@ -115,6 +115,8 @@ class DB:
             self.cur.execute('''
             CREATE TABLE opinion(
                 text TEXT,
+                date TEXT,
+                sender_name TEXT,
                 viewed INTEGER
             )
             ''')
@@ -125,9 +127,14 @@ class DB:
         'create a user account'
 
         # user_id is constant for all users
-        user_id = email[:email.find('@')] + \
-        email[email.find('@') + 1:email.find('.')] + \
-        email[email.find('.') + 1:] + str(int(time.time()))
+        d_c = []
+        d_c.append(-1)
+        user_id = email + str(int(time.time()))
+        temp = ''
+        for _ in user_id:
+            if _ != '.' and _ != '@':
+                temp += _ 
+        user_id = temp
 
         # put records in user table
         self.cur.execute('''
@@ -511,14 +518,14 @@ class DB:
         self.con.commit()
         return value[0]
 
-    def add_opinion(self, text):
+    def add_opinion(self, text, date, sender_name):
         'add comment'
         self.cur.execute(
             '''
             INSERT INTO opinion VALUES(
-                ?, ?
+                ?, ?, ?, ?
             )
-            ''', (text, 0)
+            ''', (text, date, sender_name, 0)
         )
         self.con.commit()
 
@@ -534,7 +541,7 @@ class DB:
         opinions = []
         for _ in table:
             if _[1] == 0:
-                opinions.append(_[0])
+                opinions.append((_[0], _[2], _[3]))
         return opinions
     
     def confirm_order(self, email, purchase_number):

@@ -87,6 +87,7 @@ class Manager:
         Food.Food.delete_food(food, self.db)
     
     def view_comments(self):
+        'returns a list of text, date, senders_name pair'
         return self.db.view_opinion()
     
     def create_discount_code(self, code, value):
@@ -285,8 +286,8 @@ class User:
         self.picture = picture
         self.db.update_user_profile(self.user_id, picture)
 
-    def submit_opinion(self, text : str):
-        self.db.add_opinion(text)
+    def submit_opinion(self, text : str, date):
+        self.db.add_opinion(text, date, self.name + ' ' + self.l_name)
 
     def get_last_order_dict(self):
         last_order_dict = {}
