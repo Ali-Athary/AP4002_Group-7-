@@ -4,7 +4,7 @@ from PIL import ImageTk, Image
 import os
 import sys
 from modules import GUI_manager_Inventory, GUI_restaurant_Profile, GUI_user_Profile, GUI_manager_Orders
-from modules import GUI_manager_Financial, GUI_manager_Food_menu, UserAndManager, GUI_manager_Discount
+from modules import GUI_manager_Financial, GUI_manager_Food_menu, UserAndManager, GUI_manager_Discount, GUI_manager_Read_opinions
 pages = {}
 active_page_name = ""
 
@@ -83,6 +83,11 @@ def main(root, color_palette, _admin:UserAndManager.Manager):
     discount_page = GUI_manager_Discount.Discount_panel(main_frame, color_palette, admin)
     pages["discount"] = discount_page
 
+    #opinion page
+
+    opinion_page = GUI_manager_Read_opinions.Opinion_panel(main_frame, color_palette, admin)
+    pages["opinion"] = opinion_page
+
 class Profile_info():
     def __init__(self, profile_name = "نام کاربری", profile_image = Image.open(os.path.join(sys.path[0], "resources\panels\default_profile_picture.jpg")).convert("RGBA")):
         self.name = profile_name
@@ -90,7 +95,7 @@ class Profile_info():
 
 class Right_menu(tkinter.Frame):
     def __init__(self, root, color_palette):
-        super().__init__(root, width=160, height=660, bg=color_palette[4])
+        super().__init__(root, width=160, height=680, bg=color_palette[4])
         self.pack_propagate(0)
 
         font1 = font.Font(family="Mj_Flow", size=18)
@@ -158,6 +163,12 @@ class Right_menu(tkinter.Frame):
          activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("discount"))
         discaounts_button.pack(pady=6)
 
+        #discaounts button
+
+        discaounts_button = tkinter.Button(button_frame, text="نظرات", bg=color_palette[2], width=22, font=font1,
+         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("opinion"))
+        discaounts_button.pack(pady=6)
+
     def update_info(self):
         self.profile_image_label_name.configure(text=admin.name + "\n" + admin.l_name)
 
@@ -169,7 +180,7 @@ class Right_menu(tkinter.Frame):
         self.profile_image_label.image = profile_image
 
     def show(self):
-        self.place(x=1090, y=30)
+        self.place(x=1090, y=25)
 
     def hide(self):
         self.place_forget()
