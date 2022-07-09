@@ -22,8 +22,9 @@ class Food_item_UI_images():
 
 class Food_menu_panel(tkinter.Label):
     def __init__(self, root, color_palette, _user:UserAndManager.User, cart_page):
-        global user
+        global user, main_panel
         user = _user
+        main_panel = self
         self.cart_page = cart_page
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\user_food_menu_panel.png")).convert("RGBA")
@@ -176,14 +177,17 @@ class Food_menu_panel(tkinter.Label):
         image_label.image = food_image_with_mask
         image_label.place(x=0,y=0)
 
-    def update_page(self):
+    def update_page(self, text=""):
         for item in self.items:
             item.pack_forget()
         self.items = []
 
         self.item_ui_image = Food_item_UI_images()
 
-        food_list = Food.Food.food_list
+        if(len(text.strip()) == 0):
+            food_list = Food.Food.food_list
+        else:
+            pass
         for food in food_list:
             self.add_food_to_list(food)
 
@@ -200,6 +204,7 @@ class Food_manu_top_bar(tkinter.Frame):
 
         font1 = font.Font(family="Mj_Flow", size=25)
         font2 = font.Font(family="Dast Nevis", size=30)
+        font3 = font.Font(family="Dast Nevis", size=24)
 
         # Date
 
@@ -244,19 +249,29 @@ class Food_manu_top_bar(tkinter.Frame):
 
         # Search
 
-        search_frame = tkinter.Frame(self, width=240, height=60, bg="yellow")
+        search_frame = tkinter.Frame(self, width=540, height=60, bg=color_palette[3])
         search_frame.pack_propagate(0)
         search_frame.place(x=1000,y=0, anchor=tkinter.NE)
 
         # sreach button
 
+        def search():
+            text = search_var.get()
+            main_panel.update_page(text)
+
         sreach_img = Image.open(os.path.join(sys.path[0], "resources\icons\search.png")).convert("RGBA")
         sreach_image = ImageTk.PhotoImage(sreach_img)
 
         sreach_button = tkinter.Button(search_frame, bg=color_palette[3], image=sreach_image,
-         highlightthickness=0, bd=0)
+         highlightthickness=0, bd=0, command=search)
         sreach_button.image = sreach_image
-        sreach_button.pack(fill="none", expand=True) 
+        sreach_button.pack(side=tkinter.RIGHT) 
+
+        #search entry
+
+        search_var = tkinter.StringVar()
+        tkinter.Entry(search_frame, textvariable=search_var, font=font3, justify=tkinter.RIGHT,
+         highlightthickness=0, bd=0).pack(side=tkinter.RIGHT, padx=20) 
 
     def get_date(self):
         return f"{jdatetime.datetime.now().year}/{self.month_var.get()}/{self.day_var.get()}"
