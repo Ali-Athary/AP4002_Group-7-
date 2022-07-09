@@ -25,20 +25,27 @@ class Opinion_panel(tkinter.Label):
         self.ui_images = Item_UI_images()
 
         font1 = font.Font(family="Mj_Flow", size=19)
-        font2 = font.Font(family="Dast Nevis", size=19)
+        font2 = font.Font(family="Dast Nevis", size=30)
         font_English = font.Font(family="Roboto", size=18)
+
+        # title
+
+        title_frame = tkinter.Frame(self, width=900, height=60, bg=self.color_palette[3],
+         highlightthickness=0, bd=0)
+        title_frame.pack_propagate(0)
+        title_frame.place(x=20, y=20)
+        
+        tkinter.Label(title_frame, text="نظرات کاربر ها", bg=self.color_palette[3], font=font2).pack(side=tkinter.RIGHT)
+
 
         #items frame
 
         self.item_frame = Item_ScrollableFrame(self, color_palette)
-        self.item_frame.place(x=20, y=150)
+        self.item_frame.place(x=20, y=100)
 
-        # food_list = today_order.food_log_list
 
-        # for food_log in food_list:
-        #     self.Add_cart_item(food_log)
-
-        # tkinter.Frame(self.item_frame.scrollable_frame, width=980, height=140, bg=self.color_palette[3]).pack()
+        for i in range(10):
+            self.item_frame.add_item()
 
     def Add_cart_item(self, food_log):
         if(isinstance(food_log, Food.FoodLog)):
@@ -75,6 +82,7 @@ class Opinion_panel(tkinter.Label):
 
 class Item_ScrollableFrame(ttk.Frame):
     def __init__(self, container, color_palette, *args, **kwargs):
+        self.color_palette = color_palette
         super().__init__(container, *args, **kwargs)
         
         style = ttk.Style()
@@ -84,7 +92,7 @@ class Item_ScrollableFrame(ttk.Frame):
                 troughcolor=color_palette[4], bordercolor=color_palette[3], arrowcolor=color_palette[1],
                 activerelief=tkinter.FLAT, relief=tkinter.FLAT)
 
-        canvas = tkinter.Canvas(self, height=500, width=990, bg=color_palette[3], bd=0, highlightthickness=0)
+        canvas = tkinter.Canvas(self, height=550, width=990, bg=color_palette[3], bd=0, highlightthickness=0)
         scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
 
         self.scrollable_frame = tkinter.Frame(canvas, bg=color_palette[3])
@@ -102,3 +110,43 @@ class Item_ScrollableFrame(ttk.Frame):
 
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+    
+    def add_item(self):
+        #item frame
+
+        frame = tkinter.Frame(self.scrollable_frame, width=980, height=200, bg=self.color_palette[3],
+         highlightthickness=0, bd=0)
+        frame.pack(pady=6)
+
+        font1 = font.Font(family="Mj_Flow", size=20)
+        font2 = font.Font(family="Dast Nevis", size=20)
+        font_english = font.Font(family="Roboto", size=20)
+
+        #info frame
+
+        info_frame = tkinter.Frame(frame, width=980, height=60, bg=self.color_palette[4],
+         highlightthickness=0, bd=0)
+        info_frame.pack_propagate(0)
+        info_frame.pack()
+        
+        #name
+
+        tkinter.Label(info_frame, text=" ", bg=self.color_palette[4], font=font1).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(info_frame, text="نام کاربر", bg=self.color_palette[4], font=font1).pack(side=tkinter.RIGHT)
+        tkinter.Label(info_frame, text=":", bg=self.color_palette[4], font=font1).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(info_frame, text="علی", bg=self.color_palette[4], font=font1).pack(side=tkinter.RIGHT)
+
+        #date
+
+        tkinter.Label(info_frame, text=" ", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT, padx=4)
+        tkinter.Label(info_frame, text="1401/04/18", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT)
+        tkinter.Label(info_frame, text=":", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT, padx=4)
+        tkinter.Label(info_frame, text="تاریخ", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT)
+
+        #text
+
+        text_box = tkinter.Text(frame, height=9, width=68, font=font1, bg="white", highlightthickness=0, bd=0)
+        text_box.tag_configure('tag-right', justify='right')
+        text_box.insert('end', "سلام، خوبی؟", 'tag-right')
+        text_box.config(state='disabled')
+        text_box.pack()
