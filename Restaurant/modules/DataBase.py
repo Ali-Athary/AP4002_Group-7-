@@ -115,6 +115,8 @@ class DB:
             self.cur.execute('''
             CREATE TABLE opinion(
                 text TEXT,
+                date TEXT,
+                sender_name TEXT,
                 viewed INTEGER
             )
             ''')
@@ -125,9 +127,14 @@ class DB:
         'create a user account'
 
         # user_id is constant for all users
-        user_id = email[:email.find('@')] + \
-        email[email.find('@') + 1:email.find('.')] + \
-        email[email.find('.') + 1:] + str(int(time.time()))
+        d_c = []
+        d_c.append(-1)
+        user_id = email + str(int(time.time()))
+        temp = ''
+        for _ in user_id:
+            if _ != '.' and _ != '@':
+                temp += _ 
+        user_id = temp
 
         # put records in user table
         self.cur.execute('''
@@ -155,7 +162,7 @@ class DB:
             date TEXT,
             off_code TEXT,
             off_value INTEGER,
-            confirm INTEGER
+            confirm TEXT
         )
         ''')
         self.cur.execute('''
@@ -481,12 +488,14 @@ class DB:
         SET food_data = ?
         WHERE user_id = ?
         ''', (food_data, user_id))
+        self.con.commit()
     
     def add_discount_code(self, code, value):
         'add a new discount code'
         self.cur.execute('''
         INSERT INTO discount VALUES(?, ?)
         ''', (code, value))
+        self.con.commit()
 
     def get_discount_value(self, code):
         'get the value of a discount code'
@@ -511,14 +520,14 @@ class DB:
         self.con.commit()
         return value[0]
 
-    def add_opinion(self, text):
+    def add_opinion(self, text, date, sender_name):
         'add comment'
         self.cur.execute(
             '''
             INSERT INTO opinion VALUES(
-                ?, ?
+                ?, ?, ?, ?
             )
-            ''', (text, 0)
+            ''', (text, date, sender_name, 0)
         )
         self.con.commit()
 
@@ -527,27 +536,26 @@ class DB:
         table = self.get_table_data('opinion')
         self.cur.execute(
             '''
-            UPDATE SET viewed = 1
+            UPDATE opinion SET viewed = 1
             '''
         )
         self.con.commit()
         opinions = []
         for _ in table:
-            if _[1] == 0:
-                opinions.append(_[0])
+            if _[3] == 0:
+                opinions.append((_[0], _[1], _[2]))
         return opinions
     
-    def confirm_order(self, email, purchase_number):
+    def confirm_order(self, email, purchase_number, date):
         'confirm the order'
         user_id = self.get_user_id(email)
         self.cur.execute(
             f'''
             UPDATE {user_id}_order_log
-            SET confirm = 1
+            SET confirm = ?
             WHERE purchase_number = ?
-            ''', (purchase_number)
+            ''', (date, purchase_number)
         )
-        ...
         self.con.commit()
     
     def today_order_log(self, date):

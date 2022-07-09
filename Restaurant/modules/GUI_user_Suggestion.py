@@ -62,7 +62,7 @@ class Suggestion_panel(tkinter.Label):
 
         def submit():
             opinion = text_box.get("1.0",tkinter.END)
-            user.submit_opinion(opinion)
+            user.submit_opinion(opinion, functions.get_date())
 
         submit_img = Image.open(os.path.join(sys.path[0], "resources\icons\\submit.png")).convert("RGBA")
         submit_image = ImageTk.PhotoImage(submit_img)

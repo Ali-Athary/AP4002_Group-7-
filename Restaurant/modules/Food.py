@@ -76,7 +76,7 @@ class Food:
 
 class OrderLog:
     'order log is a record of a successfull purchase that includes a list of foodlogs'
-    def __init__(self, food_log_list, total_price, original_price, date, off_code = None, off_value = 0, confirm = 0, purchase_number = 0):
+    def __init__(self, food_log_list, total_price, original_price, date, off_code = None, off_value = 0, confirm = '', purchase_number = 0):
         self.food_log_list = food_log_list
         self.total_price = int(total_price)
         self.original_price = int(original_price)
@@ -85,13 +85,14 @@ class OrderLog:
         self.date = date
         self.confirm = confirm
         self.purchase_number = purchase_number
+        self.final_price = (self.total_price - self.off_value) if (self.total_price - self.off_value >= 0) else 0
     def __repr__(self) -> str:
         return f"OrderLog object | total price : {self.total_price}, date : {self.date} \n \
             food list : \n \
             {self.food_log_list}"
       
 class FullOrderLog(OrderLog):
-    def __init__(self, food_log_list, total_price, original_price, date, user_email, user_name, off_code=None, off_value=0, confirm=0, purchase_number = 0):
+    def __init__(self, food_log_list, total_price, original_price, date, user_email, user_name, off_code=None, off_value=0, confirm='', purchase_number = 0):
         super().__init__(food_log_list, total_price, original_price, date, off_code, off_value, confirm, purchase_number)
         self.user_email = user_email
         self.user_name = user_name

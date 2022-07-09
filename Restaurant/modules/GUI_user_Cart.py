@@ -107,73 +107,8 @@ class Cart_panel(tkinter.Label):
         for item in items:
             if(isinstance(item, Food.FoodLog)):
                 # item frame
-
-                item_frame = tkinter.Frame(frame, width=960, height=100, bg=self.color_palette[4],
-                highlightbackground=self.color_palette[2], highlightthickness=2)
-                item_frame.pack_propagate(0)
-                item_frame.pack(pady=10)
-
-                # info frame
-
-                item_info_frame = tkinter.Frame(item_frame, width=580, height=90, bg=self.color_palette[4])
-                item_info_frame.pack_propagate(0)
-                item_info_frame.pack(side=tkinter.RIGHT)
-
-                tkinter.Label(item_info_frame, text=item.name, font=font2, width=12,
-                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-                tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
-                tkinter.Label(item_info_frame, text=functions.turn_int_to_price(item.price), font=font2, width=8,
-                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-                tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
-                tkinter.Label(item_info_frame, text=functions.turn_int_to_price(item.price * item.count), font=font2, width=10,
-                bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
-                tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
-
-                # adjust frame
-
-                item_adjust_frame = tkinter.Frame(item_frame, width=380, height=90, bg=self.color_palette[4])
-                item_adjust_frame.pack_propagate(0)
-                item_adjust_frame.pack(side=tkinter.LEFT, padx=5)
-
-                # count adjustment
+                cart_food_item(frame, self.color_palette, self.ui_images, self, item)
                 
-                count_frame = tkinter.Frame(item_adjust_frame, width=220, height=40, bg=self.color_palette[4])
-                count_frame.place(x=240, y=20, anchor=tkinter.CENTER)
-                
-                count_label = tkinter.Label(count_frame, text=item.count, font=font2, bg=self.color_palette[4])
-                count_label.grid(row=0, column=1, padx=32)
-
-                cpunt = item.count
-
-                plus_button = tkinter.Button(count_frame, image=self.ui_images.plus, bg=self.color_palette[4],
-                highlightthickness=0, bd=0, activebackground=self.color_palette[4])
-                plus_button.image = self.ui_images.plus
-                plus_button.grid(row=0, column=2)
-
-                minus_button = tkinter.Button(count_frame, image=self.ui_images.minus, bg=self.color_palette[4],
-                highlightthickness=0, bd=0, activebackground=self.color_palette[4])
-                minus_button.image = self.ui_images.minus
-                minus_button.grid(row=0, column=0)
-
-                # change count button
-
-                change_count_button = tkinter.Button(item_adjust_frame, image=self.ui_images.change, bg=self.color_palette[4],
-                highlightthickness=0, bd=0, activebackground=self.color_palette[4])
-                change_count_button.config(state="disable")
-                change_count_button.place(x=240, y=70, anchor=tkinter.CENTER)
-
-                #delete button
-
-                def delete(_item):
-                    user.remove_from_last_order(_item)
-                    self.update_page()
-
-                delete_button = tkinter.Button(item_adjust_frame, image=self.ui_images.trash_can, bg=self.color_palette[4],
-                highlightthickness=0, bd=0, activebackground=self.color_palette[4], command=lambda _item=item:delete(_item))
-                delete_button.image = self.ui_images.trash_can
-                delete_button.pack(side=tkinter.LEFT, padx=18)
-
-                tkinter.Label(item_adjust_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.LEFT, padx=8)
             
     def update_page(self):        
         for item in self.items:
@@ -191,6 +126,112 @@ class Cart_panel(tkinter.Label):
 
     def hide(self):
         self.place_forget()
+
+class cart_food_item(tkinter.Frame):
+    def __init__(self, root, color_palette, ui_images, main_root, item:Food.FoodLog):
+        self.main_root = main_root
+        self.color_palette = color_palette
+        self.ui_images = ui_images
+        super().__init__(root, width=960, height=100, bg=self.color_palette[4],
+         highlightbackground=self.color_palette[2], highlightthickness=2)
+        self.pack_propagate(0)
+        self.pack(pady=10)
+
+        font1 = font.Font(family="Mj_Flow", size=19)
+        font2 = font.Font(family="Dast Nevis", size=19)
+
+        # info frame
+
+        item_info_frame = tkinter.Frame(self, width=580, height=90, bg=self.color_palette[4])
+        item_info_frame.pack_propagate(0)
+        item_info_frame.pack(side=tkinter.RIGHT)
+
+        tkinter.Label(item_info_frame, text=item.name, font=font2, width=12,
+        bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+        tkinter.Label(item_info_frame, text=functions.turn_int_to_price(item.price), font=font2, width=8,
+        bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+        tkinter.Label(item_info_frame, text=functions.turn_int_to_price(item.price * item.count), font=font2, width=10,
+        bg=self.color_palette[4]).pack(side=tkinter.RIGHT, padx=4)
+        tkinter.Label(item_info_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.RIGHT)
+
+        # adjust frame
+
+        item_adjust_frame = tkinter.Frame(self, width=380, height=90, bg=self.color_palette[4])
+        item_adjust_frame.pack_propagate(0)
+        item_adjust_frame.pack(side=tkinter.LEFT, padx=5)
+
+        # count adjustment
+        
+        count_frame = tkinter.Frame(item_adjust_frame, width=220, height=40, bg=self.color_palette[4])
+        count_frame.place(x=240, y=20, anchor=tkinter.CENTER)
+        
+        count_label = tkinter.Label(count_frame, text=item.count, font=font2, bg=self.color_palette[4])
+        count_label.grid(row=0, column=1, padx=32)
+
+        count = item.count
+
+        def plus():
+            nonlocal count, item
+            nonlocal count_label, plus_button, change_count_button, minus_button
+            count += 1
+            if(count == item.count):
+                plus_button.config(state="disable")
+                change_count_button.config(state="disable")
+            if(count > 0):
+                minus_button.config(state="normal")
+            count_label.configure(text=count)
+
+        plus_button = tkinter.Button(count_frame, image=self.ui_images.plus, bg=self.color_palette[4],
+        highlightthickness=0, bd=0, activebackground=self.color_palette[4], command=plus)
+        plus_button.image = self.ui_images.plus
+        plus_button.config(state="disable")
+        plus_button.grid(row=0, column=2)
+        
+        def minus():
+            nonlocal count, item
+            nonlocal count_label, plus_button, change_count_button, minus_button
+            count -= 1
+            if(count == 0):
+                minus_button.config(state="disable")
+            if(count < item.count):
+                plus_button.config(state="normal")
+                change_count_button.config(state="normal")
+            count_label.configure(text=count)
+
+        minus_button = tkinter.Button(count_frame, image=self.ui_images.minus, bg=self.color_palette[4],
+        highlightthickness=0, bd=0, activebackground=self.color_palette[4], command=minus)
+        minus_button.image = self.ui_images.minus
+        minus_button.grid(row=0, column=0)
+
+        # change count button
+
+        def change():
+            nonlocal count
+            if(count == 0):
+                user.remove_from_last_order(item)
+            else:
+                user.remove_from_last_order(item, item.count - count)
+            self.main_root.update_page()
+
+        change_count_button = tkinter.Button(item_adjust_frame, image=self.ui_images.change, bg=self.color_palette[4],
+        highlightthickness=0, bd=0, activebackground=self.color_palette[4], command=change)
+        change_count_button.config(state="disable")
+        change_count_button.place(x=240, y=70, anchor=tkinter.CENTER)
+
+        #delete button
+
+        def delete():
+            user.remove_from_last_order(item)
+            self.main_root.update_page()
+
+        delete_button = tkinter.Button(item_adjust_frame, image=self.ui_images.trash_can, bg=self.color_palette[4],
+        highlightthickness=0, bd=0, activebackground=self.color_palette[4], command=delete)
+        delete_button.image = self.ui_images.trash_can
+        delete_button.pack(side=tkinter.LEFT, padx=18)
+
+        tkinter.Label(item_adjust_frame, text="", font=font2, bg=self.color_palette[2]).pack(side=tkinter.LEFT, padx=8)
 
 class Cart_top_bar(tkinter.Frame):
     def __init__(self, root, color_palette, final_price=1456789):

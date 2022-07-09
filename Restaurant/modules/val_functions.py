@@ -55,10 +55,14 @@ def phone_number_val(phone : str):
                 return 'شماره تلفن معتبر نیست'
     else: return True
 
-def email_val(email):
+def email_val(email : str):
     # validates email address
-    if not (email.count('.') == 1 and email.count('@') == 1 
-    and email.find('@') < email.find('.') 
+    dot_l = []
+    for i, _ in enumerate(email):
+        if _ == '.':
+            dot_l.append(i)
+    if not (len(dot_l) > 0 and email.count('@') == 1
+    and email.find('@') < dot_l[-1] 
     and email[0] != '@' and email[-1] != '.'):
         return 'ادرس ایمیل معتبر نیست'
     else : return True

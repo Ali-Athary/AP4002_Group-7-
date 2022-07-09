@@ -87,6 +87,7 @@ class Manager:
         Food.Food.delete_food(food, self.db)
     
     def view_comments(self):
+        'returns a list of text, date, senders_name pair'
         return self.db.view_opinion()
     
     def create_discount_code(self, code, value):
@@ -101,7 +102,7 @@ class Manager:
         for name, email in name_and_email:
             orders = self.db.get_user_log(email)
             for order in orders:
-                if order.confirm == 1:
+                if order.confirm:
                     full_order = Food.FullOrderLog(
                         order.food_log_list,
                         order.total_price,
@@ -119,13 +120,14 @@ class Manager:
         for name, email in name_and_email:
             orders = self.db.get_user_log(email)
             for order in orders:
-                if order.confirm == 0:
+                if not order.confirm:
                     full_order = Food.FullOrderLog(
                         order.food_log_list,
                         order.total_price,
                         order.original_price,
                         order.date,
-                        email, name, confirm= order.confirm
+                        email, name, confirm= order.confirm,
+                        purchase_number= order.purchase_number
                     )
                     full_orders_list.append(full_order)
         return sorted(full_orders_list, key = lambda x : x.date)
@@ -141,14 +143,15 @@ class Manager:
                     order.total_price,
                     order.original_price,
                     order.date,
-                    email, name, confirm= order.confirm
+                    email, name, confirm= order.confirm,
+                    purchase_number= order.purchase_number
                 )
                 full_orders_list.append(full_order)
         return sorted(full_orders_list, key = lambda x : x.date)
     
-    def confirm_order(self, full_order : Food.FullOrderLog):
+    def confirm_order(self, full_order : Food.FullOrderLog, date):
         self.db.confirm_order(full_order.user_email, 
-            full_order.purchase_number)
+            full_order.purchase_number, date)
 
 class User:
     def __init__(self, name, l_name, id, email, phone, picture : bytes, user_id, db):
@@ -212,26 +215,45 @@ class User:
                 break
         last_order = last_order.split('|')
         if last_order == ['']:
-            return []
+            last_order = []
         else:
-            return list(map(lambda x: Food.FoodLog(*x.split('$')), last_order))
+            last_order = list(map(lambda x: Food.FoodLog(*x.split('$')), last_order))
+
+        i_list = []
+        for i, log in enumerate(last_order):
+            for food in Food.Food.food_list:
+                if food.food_id == log.food_id:
+                    if food.amount - log.count >= 0:
+                        food.amount -= log.count
+                    else:
+                        i_list.append(i)
+        for _ in i_list:
+            last_order.pop(_)
+        
+        return last_order
 
     def save_last_order(self):
         'save the unfinished order to the data-base'
         food_data = ''
         for food in self.last_order:
-            food_data += f'{food.food_id}${food.name}${food.date}${food.count}|'
+            food_data += f'{food.food_id}${food.name}${food.date}${food.count}${food.price}${food.original_price}|'
         if len(food_data) != 0:
-            return food_data[:-1]
+            self.db.update_last_order(self.user_id, food_data[:-1])
         else:
-            return ''
+            return self.db.update_last_order(self.user_id, '')
 
-    def remove_from_last_order(self, foodlog : Food.FoodLog):
-        'remove a food log from last order'
-        self.last_order.remove(foodlog)
-        for food_obj in Food.Food.food_list:
-            if food_obj.food_id == foodlog.food_id:
-                food_obj.amount += foodlog.count
+    def remove_from_last_order(self, foodlog : Food.FoodLog, count = -1):
+        'remove a food log from last order or decrease the amount of it'
+        if count == -1 or foodlog.count == count:
+            self.last_order.remove(foodlog)
+            for food_obj in Food.Food.food_list:
+                if food_obj.food_id == foodlog.food_id:
+                    food_obj.amount += foodlog.count
+        else:
+            foodlog.count -= count
+            for food_obj in Food.Food.food_list:
+                if food_obj.food_id == foodlog.food_id:
+                    food_obj.amount += count  
 
     def get_total_price(self):
         x = 0
@@ -285,8 +307,8 @@ class User:
         self.picture = picture
         self.db.update_user_profile(self.user_id, picture)
 
-    def submit_opinion(self, text : str):
-        self.db.add_opinion(text)
+    def submit_opinion(self, text : str, date):
+        self.db.add_opinion(text, date, self.name + ' ' + self.l_name)
 
     def get_last_order_dict(self):
         last_order_dict = {}
