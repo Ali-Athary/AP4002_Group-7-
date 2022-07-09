@@ -6,6 +6,7 @@ from modules import UserAndManager
 from modules import Food
 import hashlib
 from io import BytesIO
+import smtplib, ssl
 
 class DB:
     def __init__(self, path):
@@ -205,10 +206,38 @@ class DB:
             return 1 # password did not change
     
     def reset_password(self, email, id, phone):
-        user_id = self.get_user_id(email)
-        # generate new password
-        # email it
-        # save the hash
+        try:
+            user_id = self.get_user_id(email)
+            table = self.get_table_data('user')
+            for _ in table:
+                if _[6] == user_id:
+                    row = user_id
+            if row[2] == id and row[4] == phone:
+                new_password = 'P@ssword1234'
+
+                self.cur.execute('''
+                UPDATE password SET password = ? WHERE user_id = ?
+                ''', (hashlib.sha224(bytes(new_password, 'utf-8')).hexdigest(), user_id))
+
+                port = 587  # For starttls
+                smtp_server = "smtp.gmail.com"
+                sender_email = "mmdhossein.haghdadi@gmail.com"
+                receiver_email = email
+                password = "mruc dneo wrqw mxly"
+                message = f"""
+                Hi there
+
+                Your new password is {new_password}."""
+
+                context = ssl.create_default_context()
+                with smtplib.SMTP(smtp_server, port) as server:
+                    server.ehlo()  # Can be omitted
+                    server.starttls(context=context)
+                    server.ehlo()  # Can be omitted
+                    server.login(sender_email, password)
+                    server.sendmail(sender_email, receiver_email, message)
+        except TypeError:
+            pass
         self.con.commit() 
 
     def get_user_obj(self, email, password):

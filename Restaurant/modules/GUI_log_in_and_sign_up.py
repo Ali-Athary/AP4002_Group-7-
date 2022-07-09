@@ -2,14 +2,14 @@ import tkinter
 from tkinter import font, ttk
 from PIL import ImageTk, Image
 import os, sys
-from modules import val_functions
+from modules import val_functions, DataBase
 
 pages = []
 
 def close_page():
     base_frame.pack_forget()
 
-def main(root, color_palette, db):
+def main(root, color_palette, db:DataBase.DB):
     global DB
     DB = db
 
@@ -483,7 +483,7 @@ class Forgot_password_page(Page):
 
         #message 
 
-        self.message_label = tkinter.Label(frame, font=font2, bg=color_palette[3])
+        self.message_label = tkinter.Label(frame, text="\n", font=font2, bg=color_palette[3])
         self.message_label.pack()
 
         #button frame
@@ -494,8 +494,16 @@ class Forgot_password_page(Page):
 
         #Send button
 
+        def send():
+            DB.reset_password(self.email_var.get(), self.id_var.get(), self.phone_number_var.get())
+            self.phone_number_var.set("")
+            self.id_var.set("")
+            self.email_var.set("")
+            self.display_message("درصورت درست بودن اطلاعات\nرمز عمبور جدید برای شما ارسال میشود")
+
+
         tkinter.Button(button_frame, text="ارسال", font=font_persian, width=26, bg=color_palette[4],
-        activebackground=color_palette[3], highlightthickness=0, bd=0).grid(row=0, column=0, columnspan=2)
+        activebackground=color_palette[3], highlightthickness=0, bd=0, command=send).grid(row=0, column=0, columnspan=2)
         
         #sign in button 
 
@@ -510,6 +518,7 @@ class Forgot_password_page(Page):
     def clear(self):
         for entry in self.entries:
             entry.delete(0, 'end')
+        self.display_message("")
 
     def display_message(self, text):
-        self.error_label.configure(text=text)
+        self.message_label.configure(text=text)
