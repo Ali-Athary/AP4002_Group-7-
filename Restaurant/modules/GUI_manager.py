@@ -129,45 +129,73 @@ class Right_menu(tkinter.Frame):
 
         #Restaurant information button
 
-        Restaurant_information_button = tkinter.Button(button_frame, text="اطلاعات رستوران", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("restaurant_profile"))
-        Restaurant_information_button.pack(pady=2)
+        b_img = Image.open(os.path.join(sys.path[0], "resources\icons\\manager_1.png")).convert("RGBA")
+        b_image = ImageTk.PhotoImage(b_img)
+
+        Restaurant_information_button = tkinter.Button(button_frame, bg=color_palette[4], image=b_image, font=font1,
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("restaurant_profile"))
+        Restaurant_information_button.image = b_image
+        Restaurant_information_button.pack(pady=1)
 
         #inventory button
 
-        inventory_button = tkinter.Button(button_frame, text="موجودی غذا", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("inventory"))
-        inventory_button.pack(pady=2)
+        b_img = Image.open(os.path.join(sys.path[0], "resources\icons\\manager_2.png")).convert("RGBA")
+        b_image = ImageTk.PhotoImage(b_img)
+
+        inventory_button = tkinter.Button(button_frame, bg=color_palette[4], image=b_image, font=font1,
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("inventory"))
+        inventory_button.image = b_image
+        inventory_button.pack(pady=1)
 
         #orders button
 
-        orders_button = tkinter.Button(button_frame, text="سفارشات", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("orders"))
-        orders_button.pack(pady=2)
+        b_img = Image.open(os.path.join(sys.path[0], "resources\icons\\manager_3.png")).convert("RGBA")
+        b_image = ImageTk.PhotoImage(b_img)
+
+        orders_button = tkinter.Button(button_frame, bg=color_palette[4], image=b_image, font=font1,
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("orders"))
+        orders_button.image = b_image
+        orders_button.pack(pady=1)
 
         #financial information button
 
-        financial_information_button = tkinter.Button(button_frame, text="اطلاعات اقتصادی", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("financial"))
+        b_img = Image.open(os.path.join(sys.path[0], "resources\icons\\manager_4.png")).convert("RGBA")
+        b_image = ImageTk.PhotoImage(b_img)
+
+        financial_information_button = tkinter.Button(button_frame, bg=color_palette[4], image=b_image, font=font1,
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("financial"))
+        financial_information_button.image = b_image
         financial_information_button.pack(pady=2)
 
         #food menu button
 
-        food_menu_button = tkinter.Button(button_frame, text="منو غذا", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("food_menu"))
-        food_menu_button.pack(pady=2)
+        b_img = Image.open(os.path.join(sys.path[0], "resources\icons\\manager_5.png")).convert("RGBA")
+        b_image = ImageTk.PhotoImage(b_img)
+
+        food_menu_button = tkinter.Button(button_frame, bg=color_palette[4], image=b_image, font=font1,
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("food_menu"))
+        food_menu_button.image = b_image
+        food_menu_button.pack(pady=1)
 
         #discaounts button
 
-        discaounts_button = tkinter.Button(button_frame, text="تخفیف ها", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("discount"))
-        discaounts_button.pack(pady=2)
+        b_img = Image.open(os.path.join(sys.path[0], "resources\icons\\manager_6.png")).convert("RGBA")
+        b_image = ImageTk.PhotoImage(b_img)
 
-        #discaounts button
+        discaounts_button = tkinter.Button(button_frame, bg=color_palette[4], image=b_image, font=font1,
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("discount"))
+        discaounts_button.image = b_image
+        discaounts_button.pack(pady=1)
 
-        discaounts_button = tkinter.Button(button_frame, text="نظرات", bg=color_palette[2], width=22, font=font1,
-         activebackground=color_palette[2], highlightthickness=0, bd=0, command=lambda:change_page("opinion"))
-        discaounts_button.pack(pady=2)
+        #opinion button
+
+        b_img = Image.open(os.path.join(sys.path[0], "resources\icons\\manager_7.png")).convert("RGBA")
+        b_image = ImageTk.PhotoImage(b_img)
+
+        opinion_button = tkinter.Button(button_frame, bg=color_palette[4], image=b_image, font=font1,
+         activebackground=color_palette[4], highlightthickness=0, bd=0, command=lambda:change_page("opinion"))
+        opinion_button.image = b_image
+        opinion_button.pack(pady=1)
 
     def update_info(self):
         self.profile_image_label_name.configure(text=admin.name + "\n" + admin.l_name)
