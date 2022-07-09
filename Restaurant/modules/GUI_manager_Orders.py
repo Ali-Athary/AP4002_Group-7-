@@ -25,8 +25,9 @@ class Order_item_UI_images():
 
 class Orders_panel(tkinter.Label):
     def __init__(self, root, color_palette, _admin:UserAndManager.Manager):
-        global admin
+        global admin, main_panel
         admin = _admin
+        main_panel = self
         self.color_palette = color_palette
         img = Image.open(os.path.join(sys.path[0], "resources\panels\\user_food_menu_panel.png")).convert("RGBA")
         image = ImageTk.PhotoImage(img)
@@ -93,7 +94,6 @@ class Orders_panel(tkinter.Label):
         all_orders = admin.get_confirmed_orders()
         for order in all_orders:
             self.oderes_frames["completed_orders_frame"].add_item(order)
-
 
     def hide_detail(self):
         self.detail_page.hide()
@@ -237,6 +237,7 @@ class Orders_Detail_panel(tkinter.Label):
             def send():
                 admin.confirm_order(order, functions.get_date())
                 root.hide_detail()
+                main_panel.update_page()
 
             send_button = tkinter.Button(button_frame, image=self.item_ui_image.send, bg=color_palette[3],
             activebackground=color_palette[3], bd=0, highlightthickness=0, command=send)
@@ -400,7 +401,7 @@ class Order_Item_ScrollableFrame(ScrollableFrame):
 
         # sent date
 
-        tkinter.Label(frame, text="-", bg=self.color_palette[3], font=font2, width=9).pack(side=tkinter.RIGHT)
+        tkinter.Label(frame, text=order.confirm, bg=self.color_palette[3], font=font2, width=9).pack(side=tkinter.RIGHT)
         tkinter.Label(frame, text="", bg=self.color_palette[2], font=font1).pack(side=tkinter.RIGHT)
 
         # view button

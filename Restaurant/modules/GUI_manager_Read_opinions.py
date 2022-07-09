@@ -138,9 +138,9 @@ class Item_ScrollableFrame(ttk.Frame):
         #date
 
         tkinter.Label(info_frame, text=" ", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT, padx=4)
-        tkinter.Label(info_frame, text="1401/04/18", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT)
-        tkinter.Label(info_frame, text=":", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT, padx=4)
         tkinter.Label(info_frame, text=opinion[1], bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT)
+        tkinter.Label(info_frame, text=":", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT, padx=4)
+        tkinter.Label(info_frame, text="تاریخ", bg=self.color_palette[4], font=font1).pack(side=tkinter.LEFT)
 
         #text
 
